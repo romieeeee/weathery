@@ -52,29 +52,29 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
 
     // ViewPager2 사용
-    implementation("androidx.viewpager2:viewpager2:$1.0.0")
+    implementation(libs.androidx.viewpager2)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    /**
-     * navigation
-     */
-    val nav_version = "2.8.0"
-
     // Jetpack Compose integration
-    implementation("androidx.navigation:navigation-compose:$nav_version")
+    implementation(libs.androidx.navigation.compose)
 
     // Views/Fragments integration
-    implementation("androidx.navigation:navigation-fragment:$nav_version")
-    implementation("androidx.navigation:navigation-ui:$nav_version")
+    implementation(libs.androidx.navigation.fragment)
+    implementation(libs.androidx.navigation.ui)
 
 
     // Feature module support for Fragments
-    implementation("androidx.navigation:navigation-dynamic-features-fragment:$nav_version")
+    implementation(libs.androidx.navigation.dynamic.features.fragment)
 
     // Testing Navigation
-    androidTestImplementation("androidx.navigation:navigation-testing:$nav_version")
+    androidTestImplementation(libs.androidx.navigation.testing)
+
+    implementation (libs.material.v190)
+
+    // drawerlayout
+    implementation (libs.androidx.drawerlayout)
 }
 

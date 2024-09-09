@@ -1,6 +1,7 @@
 package com.example.weathery
 
 import android.os.Bundle
+import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 
@@ -24,5 +25,15 @@ class MainActivity : AppCompatActivity() {
             .beginTransaction()
             .replace(R.id.fragment_container, fragment) // fragment_container는 activity_main.xml에 정의된 프래그먼트가 삽입될 위치
             .commit()
+    }
+
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+
+        val inflater = menuInflater
+//        inflater.inflate(R.menu.main)
+
+        return super.onCreateOptionsMenu(menu)
+
     }
 }
