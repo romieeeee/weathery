@@ -2,12 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="20dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Current Location" />
+        android:text="Current Location"
+        android:textSize="18sp"
+        android:textColor="@color/white65"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -17,14 +20,17 @@
         android:layout_marginTop="20dp">
 
         <ImageView
-            android:layout_width="14sp"
-            android:layout_height="14sp"
+            android:layout_width="20sp"
+            android:layout_height="20sp"
             android:src="@drawable/img_loc" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8sp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
             android:text="Berlin/Germany" />
     </LinearLayout>
 
