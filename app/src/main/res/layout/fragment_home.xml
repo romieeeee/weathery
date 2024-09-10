@@ -1,106 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_drawer_layout"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/transparent"
-    tools:context=".HomeFragment"
-    tools:openDrawer="start">
+    android:background="@color/transparent">
 
-<!--    <include layout="@layout/main_toolbar" />-->
-
-    <!-- Scrollable content -->
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="15dp"
+        android:paddingBottom="20dp">
+
+        <!-- weather slide -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="190dp"
+            android:background="@drawable/radius_blue_gradient" />
+
+        <!-- forecast card -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/forecast"
+            android:textColor="@color/dark_blue"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <LinearLayout
+            android:id="@+id/linear_forecast"
             android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/radius_white"
+            android:orientation="vertical" />
+
+        <!-- sun condition card -->
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:paddingHorizontal="20dp"
-            android:paddingVertical="20dp">
+            android:layout_marginTop="20dp"
+            android:text="@string/sun_condition"
+            android:textColor="@color/dark_blue"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
-            <!-- weather slide -->
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/view_pager"
-                android:layout_width="match_parent"
-                android:layout_height="190dp"
-                android:background="@drawable/radius_blue_gradient" />
+        <LinearLayout
+            android:id="@+id/linear_sun_condition"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/radius_white"
+            android:orientation="vertical" />
 
-            <!-- forecast card -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:layout_marginTop="20dp"
-                android:text="@string/forecast"
-                android:textColor="@color/darkblue"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+        <!-- wind card -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/wind"
+            android:textColor="@color/dark_blue"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
-            <LinearLayout
-                android:id="@+id/linear_forecast"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/radius_white"
-                android:orientation="vertical" />
+        <LinearLayout
+            android:id="@+id/linear_wind"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/radius_white"
+            android:orientation="vertical" />
 
-            <!-- sun condition card -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:layout_marginTop="20dp"
-                android:text="@string/sun_condition"
-                android:textColor="@color/darkblue"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:id="@+id/linear_sun_condition"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/radius_white"
-                android:orientation="vertical" />
-
-            <!-- wind card -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:layout_marginTop="20dp"
-                android:text="@string/wind"
-                android:textColor="@color/darkblue"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:id="@+id/linear_wind"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/radius_white"
-                android:orientation="vertical" />
-
-
-        </LinearLayout>
-    </ScrollView>
-
-    <!-- Navigation drawer -->
-    <com.google.android.material.navigation.NavigationView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="@drawable/radius_blue_gradient"
-        app:headerLayout="@layout/nav_header"
-        app:menu="@menu/nav_menu"
-        app:itemTextColor="@color/white"
-        app:itemIconTint="null"/>
-
-</androidx.drawerlayout.widget.DrawerLayout>
+    </LinearLayout>
+</ScrollView>

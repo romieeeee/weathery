@@ -3,13 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:paddingVertical="30sp"
+    android:paddingHorizontal="25sp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Current Location"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textColor="@color/white65"/>
 
     <LinearLayout
@@ -31,7 +32,7 @@
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/white"
-            android:text="Berlin/Germany" />
+            android:text="@string/loc1" />
     </LinearLayout>
 
 </LinearLayout>

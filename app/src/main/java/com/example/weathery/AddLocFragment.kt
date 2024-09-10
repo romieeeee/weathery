@@ -22,7 +22,7 @@ class AddLocFragment(val onAddCity: (String) -> Unit) : Fragment() {
 
         val addButton = view.findViewById<Button>(R.id.add_button)
 
-        //TODO: 클릭 시 도시 추가 기능 구현 예정
+        // TODO: 클릭 시 도시 추가 기능 구현 예정
         addButton.setOnClickListener {
 //            val newCity = cityInput.text.toString()
 //            onAddCity(newCity)

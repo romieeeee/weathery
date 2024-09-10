@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/loc_item"
-        android:title=" ">
+        android:title="@null">
         <menu>
             <item
                 android:id="@+id/add_loc"
@@ -12,23 +12,23 @@
             <item
                 android:id="@+id/loc1"
                 android:icon="@drawable/img_loc"
-                android:title="Berlin, Germany" />
+                android:title="@string/loc1" />
 
             <item
                 android:id="@+id/loc2"
-                android:title="Liverpool, UK"
+                android:title="@string/loc2"
                 android:icon="@drawable/img_loc" />
 
             <item
                 android:id="@+id/loc3"
-                android:title="Washington, USA"
+                android:title="@string/loc3"
                 android:icon="@drawable/img_loc" />
         </menu>
     </item>
 
     <item
         android:id="@+id/etc_item"
-        android:title=" ">
+        android:title="@null">
         <menu>
             <item
             android:id="@+id/settings"
