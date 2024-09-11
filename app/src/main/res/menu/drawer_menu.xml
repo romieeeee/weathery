@@ -16,13 +16,13 @@
 
             <item
                 android:id="@+id/loc2"
-                android:title="@string/loc2"
-                android:icon="@drawable/b_loc" />
+                android:icon="@drawable/b_loc"
+                android:title="@string/loc2" />
 
             <item
                 android:id="@+id/loc3"
-                android:title="@string/loc3"
-                android:icon="@drawable/b_loc" />
+                android:icon="@drawable/b_loc"
+                android:title="@string/loc3" />
         </menu>
     </item>
 
@@ -31,8 +31,8 @@
         android:title="@null">
         <menu>
             <item
-            android:id="@+id/settings"
-            android:title="Settings" />
+                android:id="@+id/settings"
+                android:title="Settings" />
 
             <item
                 android:id="@+id/share"
