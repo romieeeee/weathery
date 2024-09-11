@@ -23,7 +23,7 @@
         <ImageView
             android:layout_width="20sp"
             android:layout_height="20sp"
-            android:src="@drawable/img_loc" />
+            android:src="@drawable/b_loc" />
 
         <TextView
             android:layout_width="wrap_content"

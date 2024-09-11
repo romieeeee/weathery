@@ -16,15 +16,15 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/menu"
-                android:layout_width="28sp"
-                android:layout_height="28sp"
+                android:layout_width="30sp"
+                android:layout_height="30sp"
                 android:layout_marginStart="20dp"
                 android:layout_gravity="left"
 
@@ -36,29 +36,31 @@
                 android:layout_height="wrap_content"
                 android:text="@string/loc1"
                 android:textColor="@color/dark_blue"
-                android:textSize="20sp"
+                android:textSize="21sp"
                 android:layout_gravity="center"
                 android:textStyle="bold" />
 
             <ImageView
                 android:id="@+id/search"
-                android:layout_width="28sp"
-                android:layout_height="28sp"
+                android:layout_width="30sp"
+                android:layout_height="30sp"
                 android:layout_marginEnd="20dp"
                 android:layout_gravity="right"
-                android:src="@drawable/img_search" />
+                android:src="@drawable/b_search" />
 
         </androidx.appcompat.widget.Toolbar>
 
-        <FrameLayout
-            android:id="@+id/fragment_container"
+        <fragment
+            android:id="@+id/nav_host_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toolbar" />
-
+            app:defaultNavHost="true"
+            app:navGraph="@navigation/nav_graph"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Navigation Drawer -->
@@ -67,7 +69,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@drawable/radius_blue_gradient"
+        android:background="@drawable/bg_radius_blue_grad"
         app:headerLayout="@layout/nav_header"
         app:itemIconTint="@null"
         app:itemTextColor="@color/white"
