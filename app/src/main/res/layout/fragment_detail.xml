@@ -1,15 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".DetailFragment">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        tools:context=".DetailFragment">
 
-    </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="300sp"
+            android:background="@drawable/bg_radius_blue_grad2"
+            android:orientation="vertical" />
 
+        <LinearLayout
+            android:layout_width="370sp"
+            android:layout_height="200sp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="200sp"
+            android:background="@drawable/bg_radius_white_grad"
+            android:orientation="vertical" />
 
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="430dp"
+            android:orientation="vertical">
+
+            <!-- details card -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginBottom="5dp"
+                android:text="Details"
+                android:textColor="@color/dark_blue"
+                android:textSize="19sp" />
+
+            <LinearLayout
+                android:id="@+id/linear_details"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:background="@drawable/bg_radius_white"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="None"
+                    android:textColor="@color/black"
+                    android:textSize="25sp" />
+            </LinearLayout>
+
+            <!-- Tips card -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginBottom="5dp"
+                android:text="Tips"
+                android:textColor="@color/dark_blue"
+                android:textSize="19sp" />
+
+            <LinearLayout
+                android:id="@+id/linear_tips"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/bg_radius_white"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="None"
+                    android:textColor="@color/black"
+                    android:textSize="25sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </FrameLayout>
+</ScrollView>
