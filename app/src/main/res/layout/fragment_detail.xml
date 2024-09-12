@@ -12,7 +12,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="300sp"
+            android:layout_height="350sp"
             android:background="@drawable/bg_radius_blue_grad2"
             android:orientation="vertical" />
 
@@ -20,7 +20,7 @@
             android:layout_width="370sp"
             android:layout_height="200sp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="200sp"
+            android:layout_marginTop="250sp"
             android:background="@drawable/bg_radius_white_grad"
             android:orientation="vertical" />
 
@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="430dp"
+            android:layout_marginTop="480dp"
             android:orientation="vertical">
 
             <!-- details card -->

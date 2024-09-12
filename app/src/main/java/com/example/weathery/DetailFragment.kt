@@ -16,6 +16,12 @@ class DetailFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_detail, container, false)
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
+        // toolbar 업데이트
+        val toolbarUpdater = activity as? ToolbarUpdater
+        toolbarUpdater?.updateToolbar(R.drawable.tb_back, "Seoul, Korea", R.color.white, R.drawable.tb_search_wh)
 
+    }
 }

@@ -19,5 +19,4 @@ class WeatherPagerAdapter(fragmentActivity: FragmentActivity): FragmentStateAdap
         fragments.add(fragment)
         notifyItemInserted(fragments.size - 1)
     }
-
 }

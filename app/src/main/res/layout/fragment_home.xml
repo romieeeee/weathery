@@ -13,13 +13,15 @@
         android:paddingBottom="20dp">
 
         <!-- weather slide -->
+
+        <!-- forecast card -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="190dp"
+            android:layout_marginTop="50dp"
             android:background="@drawable/bg_radius_blue_grad" />
 
-        <!-- forecast card -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

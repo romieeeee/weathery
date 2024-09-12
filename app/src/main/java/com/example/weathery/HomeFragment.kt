@@ -19,6 +19,9 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val toolbarUpdater = activity as? ToolbarUpdater
+        toolbarUpdater?.updateToolbar(R.drawable.tb_menu, "Seoul, Korea", R.color.dark_blue, R.drawable.tb_search)
+
         val viewPager = view.findViewById<ViewPager2>(R.id.view_pager)
         val adapter = WeatherPagerAdapter(requireActivity())
         viewPager.adapter = adapter
