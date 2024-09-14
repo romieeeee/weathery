@@ -30,13 +30,13 @@
             android:layout_marginBottom="5dp"
             android:text="@string/forecast"
             android:textColor="@color/dark_blue"
-            android:textSize="19sp" />
+            android:textSize="19sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:id="@+id/linear_forecast"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_marginTop="5dp"
             android:background="@drawable/bg_radius_white"
             android:gravity="center"
             android:orientation="vertical">
@@ -58,13 +58,13 @@
             android:layout_marginBottom="5dp"
             android:text="@string/sun_condition"
             android:textColor="@color/dark_blue"
-            android:textSize="19sp" />
+            android:textSize="19sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:id="@+id/linear_sun_condition"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_marginTop="5dp"
             android:background="@drawable/bg_radius_white"
             android:gravity="center"
             android:orientation="vertical">
@@ -81,18 +81,19 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="5dp"
             android:text="@string/wind"
             android:textColor="@color/dark_blue"
-            android:textSize="19sp" />
+            android:textSize="19sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:id="@+id/linear_wind"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="5dp"
             android:background="@drawable/bg_radius_white"
             android:gravity="center"
             android:orientation="vertical">
