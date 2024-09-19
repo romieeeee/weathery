@@ -65,7 +65,6 @@ dependencies {
     implementation(libs.androidx.navigation.fragment)
     implementation(libs.androidx.navigation.ui)
 
-
     // Feature module support for Fragments
     implementation(libs.androidx.navigation.dynamic.features.fragment)
 
@@ -76,5 +75,8 @@ dependencies {
 
     // drawerlayout
     implementation (libs.androidx.drawerlayout)
-}
 
+    // Retrofit2
+    implementation(libs.retrofit)
+    implementation(libs.retrofit2.converter.gson) // Gson 컨버터
+}
