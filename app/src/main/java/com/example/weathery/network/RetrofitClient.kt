@@ -1,4 +1,4 @@
-package com.example.weathery
+package com.example.weathery.network
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

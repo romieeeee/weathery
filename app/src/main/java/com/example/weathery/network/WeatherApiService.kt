@@ -1,6 +1,7 @@
-package com.example.weathery
+package com.example.weathery.network
 
-import com.example.weathery.ApiKey.Companion.API_KEY
+import com.example.weathery.utils.ApiKey.Companion.API_KEY
+import com.example.weathery.models.WeatherResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query

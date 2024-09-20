@@ -1,5 +1,5 @@
 // DefaultLocFragment
-package com.example.weathery
+package com.example.weathery.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import com.example.weathery.R
 
 class DefaultLocFragment : Fragment() {
 

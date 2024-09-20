@@ -1,4 +1,4 @@
-package com.example.weathery
+package com.example.weathery.fragments
 
 import android.graphics.PorterDuff
 import android.os.Bundle
@@ -11,6 +11,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
+import com.example.weathery.R
 import com.example.weathery.adapter.WeatherPagerAdapter
 
 class HomeFragment : Fragment() {
