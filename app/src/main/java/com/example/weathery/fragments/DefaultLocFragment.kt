@@ -1,15 +1,25 @@
-// DefaultLocFragment
 package com.example.weathery.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.navigation.fragment.findNavController
 import com.example.weathery.R
+import com.example.weathery.network.RetrofitClient
+import com.example.weathery.network.WeatherApi
+import com.example.weathery.utils.ApiKey
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class DefaultLocFragment : Fragment() {
+
+    private lateinit var weatherInfoTextView: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -22,17 +32,63 @@ class DefaultLocFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        weatherInfoTextView = view.findViewById(R.id.tv_weather_condition)
 
         view.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_detailFragment)
         }
+
+        val baseDate = arguments?.getString("baseDate") ?: "20240920"
+        val baseTime = arguments?.getString("baseTime") ?: "0600"
+        val nx = arguments?.getInt("nx") ?: 55
+        val ny = arguments?.getInt("ny") ?: 127
+
+        fetchWeatherData(baseDate, baseTime, nx, ny)
+    }
+
+    private fun fetchWeatherData(baseDate: String, baseTime: String, nx: Int, ny: Int) {
+        val apiKey = ApiKey.API_KEY
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // 요청 파라미터를 로그로 출력하여 확인
+                Log.d("API", "API Request - baseDate: $baseDate, baseTime: $baseTime, nx: $nx, ny: $ny")
+
+                val response = RetrofitClient.getInstance().create(WeatherApi::class.java)
+                    .getWeatherData(apiKey, 1, 1000, "JSON", baseDate, baseTime, nx, ny)
+
+                // API 응답을 JSON으로 로그 출력
+                Log.d("API", "API Raw Response: ${response.toString()}")
+
+                withContext(Dispatchers.Main) {
+                    if (response.response.header.resultCode == "00") {
+                        // null-safe 연산자 사용하여 body가 null이 아닌 경우에만 접근
+                        val weatherItem = response.response.body?.items?.item?.get(0)
+                        if (weatherItem != null) {
+                            weatherInfoTextView.text = weatherItem.obsrValue
+                        } else {
+                            weatherInfoTextView.text = "No weather data available"
+                            Log.e("API", "Weather data is null.")
+                        }
+                    } else {
+                        weatherInfoTextView.text = response.response.header.resultMsg
+                        Log.e("API", "Error: ${response.response.header.resultMsg}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("API", "API call failed: ${e.message}")
+            }
+        }
     }
 
     companion object {
-        fun newInstance(city: String): DefaultLocFragment {
+        fun newInstance(baseDate: String, baseTime: String, nx: Int, ny: Int): DefaultLocFragment {
             val fragment = DefaultLocFragment()
-            val args = Bundle()
-            args.putString("city", city)
+            val args = Bundle().apply {
+                putString("baseDate", baseDate)
+                putString("baseTime", baseTime)
+                putInt("nx", nx)
+                putInt("ny", ny)
+            }
             fragment.arguments = args
             return fragment
         }

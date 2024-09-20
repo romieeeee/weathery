@@ -10,30 +10,30 @@
     tools:context=".fragments.DefaultLocFragment">
 
     <TextView
-        android:id="@+id/textWeatherCondition"
+        android:id="@+id/tv_rain_chance"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Chance of rain 60%"
         android:textColor="@android:color/white"
         android:textSize="16sp"
-        app:layout_constraintEnd_toStartOf="@id/imageWeather"
+        app:layout_constraintEnd_toStartOf="@id/iv_weather"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imageWeather"
+        android:id="@+id/iv_weather"
         android:layout_width="125dp"
         android:layout_height="110dp"
         android:src="@drawable/w_cloudy"
-        app:layout_constraintBottom_toBottomOf="@id/textWeatherCondition"
+        app:layout_constraintBottom_toBottomOf="@id/tv_rain_chance"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/textWeatherCondition"
-        app:layout_constraintTop_toTopOf="@id/textWeatherCondition"
+        app:layout_constraintStart_toEndOf="@id/tv_rain_chance"
+        app:layout_constraintTop_toTopOf="@id/tv_rain_chance"
         app:layout_constraintVertical_bias="0.212" />
 
     <TextView
-        android:id="@+id/textRainChance"
+        android:id="@+id/tv_weather_condition"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -44,10 +44,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textWeatherCondition" />
+        app:layout_constraintTop_toBottomOf="@id/tv_rain_chance" />
 
     <TextView
-        android:id="@+id/textLocation"
+        android:id="@+id/tv_loc"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -57,11 +57,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textRainChance" />
+        app:layout_constraintTop_toBottomOf="@id/tv_weather_condition" />
 
     <!-- Temperature and other details -->
     <TextView
-        android:id="@+id/textTemperatureDetails"
+        android:id="@+id/tv_temperature_details"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
@@ -72,5 +72,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textLocation" />
+        app:layout_constraintTop_toBottomOf="@id/tv_loc" />
 </androidx.constraintlayout.widget.ConstraintLayout>
