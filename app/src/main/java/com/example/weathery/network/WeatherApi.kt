@@ -7,7 +7,6 @@ import retrofit2.http.Query
 
 /**
  * 요청 파라미터에 맞춰 날씨 API 인터페이스 정의
- * API 요청의 end point HTTP 메서드를 정의하는 인터페이스
  */
 interface WeatherApi {
     @GET("getUltraSrtNcst") // end point 설정

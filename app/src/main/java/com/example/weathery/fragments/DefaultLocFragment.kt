@@ -1,5 +1,6 @@
 package com.example.weathery.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,6 +21,8 @@ import kotlinx.coroutines.withContext
 class DefaultLocFragment : Fragment() {
 
     private lateinit var weatherInfoTextView: TextView
+    private lateinit var rainChanceTextView: TextView // 강수 확률 TextView
+    private lateinit var temperatureDetailsTextView: TextView // 온도 세부 사항 TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,42 +32,56 @@ class DefaultLocFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_default_loc, container, false)
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        weatherInfoTextView = view.findViewById(R.id.tv_weather_condition)
 
+        // init
+        weatherInfoTextView = view.findViewById(R.id.tv_weather_condition)
+        rainChanceTextView = view.findViewById(R.id.tv_rain_chance)
+        temperatureDetailsTextView = view.findViewById(R.id.tv_temperature_details)
+
+        // 클릭 시 detail fragment로 이동
         view.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_detailFragment)
         }
 
+        // 기본값 set
         val baseDate = arguments?.getString("baseDate") ?: "20240920"
         val baseTime = arguments?.getString("baseTime") ?: "0600"
         val nx = arguments?.getInt("nx") ?: 55
         val ny = arguments?.getInt("ny") ?: 127
 
+        // 날씨 데이터 요청하기
         fetchWeatherData(baseDate, baseTime, nx, ny)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun fetchWeatherData(baseDate: String, baseTime: String, nx: Int, ny: Int) {
         val apiKey = ApiKey.API_KEY
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // 요청 파라미터를 로그로 출력하여 확인
+                // 요청 파라미터 확인
                 Log.d("API", "API Request - baseDate: $baseDate, baseTime: $baseTime, nx: $nx, ny: $ny")
 
+                // API 호출
                 val response = RetrofitClient.getInstance().create(WeatherApi::class.java)
                     .getWeatherData(apiKey, 1, 1000, "JSON", baseDate, baseTime, nx, ny)
 
-                // API 응답을 JSON으로 로그 출력
+                // API 응답 출력
                 Log.d("API", "API Raw Response: ${response.toString()}")
 
                 withContext(Dispatchers.Main) {
                     if (response.response.header.resultCode == "00") {
                         // null-safe 연산자 사용하여 body가 null이 아닌 경우에만 접근
-                        val weatherItem = response.response.body?.items?.item?.get(0)
-                        if (weatherItem != null) {
-                            weatherInfoTextView.text = weatherItem.obsrValue
+                        val weatherItems = response.response.body?.items?.item
+                        if (!weatherItems.isNullOrEmpty()) {
+                            // 첫 번째 WeatherItem에 접근하여 데이터 설정
+                            val weatherItem = weatherItems[0]
+                            weatherInfoTextView.text = weatherItem.obsrValue // 날씨 정보 표시
+
+                            // 강수 확률 및 온도 세부 사항 추가
+                            rainChanceTextView.text = "Chance of rain ${weatherItems[1].obsrValue}%" // 강수 확률
+                            temperatureDetailsTextView.text = "${weatherItems[2].obsrValue}° F • ${weatherItems[3].obsrValue} • ${weatherItems[4].obsrValue} • ${weatherItems[5].obsrValue} mp/h" // 온도 세부 사항
                         } else {
                             weatherInfoTextView.text = "No weather data available"
                             Log.e("API", "Weather data is null.")

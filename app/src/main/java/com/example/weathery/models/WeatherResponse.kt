@@ -42,4 +42,5 @@ data class WeatherItem(
     @SerializedName("nx") val nx: Int,
     @SerializedName("ny") val ny: Int,
     @SerializedName("obsrValue") val obsrValue: String
+
 )
