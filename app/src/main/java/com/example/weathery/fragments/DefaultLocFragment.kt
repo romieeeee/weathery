@@ -8,12 +8,13 @@ import androidx.fragment.app.Fragment
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.weathery.R
+import com.example.weathery.data.WeatherDataProcessor
 import com.example.weathery.network.RetrofitClient
 import com.example.weathery.network.WeatherApi
 import com.example.weathery.utils.ApiKey
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -46,7 +47,7 @@ class DefaultLocFragment : Fragment() {
         }
 
         // 기본값 set
-        val baseDate = arguments?.getString("baseDate") ?: "20240920"
+        val baseDate = arguments?.getString("baseDate") ?: "20240922"
         val baseTime = arguments?.getString("baseTime") ?: "0600"
         val nx = arguments?.getInt("nx") ?: 55
         val ny = arguments?.getInt("ny") ?: 127
@@ -57,37 +58,29 @@ class DefaultLocFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun fetchWeatherData(baseDate: String, baseTime: String, nx: Int, ny: Int) {
-        val apiKey = ApiKey.API_KEY
-        CoroutineScope(Dispatchers.IO).launch {
+        val apiKey = ApiKey.API_KEY // API Key 설정
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // 요청 파라미터 확인
-                Log.d("API", "API Request - baseDate: $baseDate, baseTime: $baseTime, nx: $nx, ny: $ny")
+                // API 요청 로그
+                Log.d("API", "Requesting weather data: baseDate=$baseDate, baseTime=$baseTime, nx=$nx, ny=$ny")
 
-                // API 호출
                 val response = RetrofitClient.getInstance().create(WeatherApi::class.java)
                     .getWeatherData(apiKey, 1, 1000, "JSON", baseDate, baseTime, nx, ny)
 
-                // API 응답 출력
-                Log.d("API", "API Raw Response: ${response.toString()}")
+                Log.d("API", "Response received: ${response.toString()}")
 
+                // UI 업데이트는 Main thread에서 처리
                 withContext(Dispatchers.Main) {
                     if (response.response.header.resultCode == "00") {
-                        // null-safe 연산자 사용하여 body가 null이 아닌 경우에만 접근
-                        val weatherItems = response.response.body?.items?.item
-                        if (!weatherItems.isNullOrEmpty()) {
-                            // 첫 번째 WeatherItem에 접근하여 데이터 설정
-                            val weatherItem = weatherItems[0]
-                            weatherInfoTextView.text = weatherItem.obsrValue // 날씨 정보 표시
+                        val processor = WeatherDataProcessor(response)
 
-                            // 강수 확률 및 온도 세부 사항 추가
-                            rainChanceTextView.text = "Chance of rain ${weatherItems[1].obsrValue}%" // 강수 확률
-                            temperatureDetailsTextView.text = "${weatherItems[2].obsrValue}° F • ${weatherItems[3].obsrValue} • ${weatherItems[4].obsrValue} • ${weatherItems[5].obsrValue} mp/h" // 온도 세부 사항
-                        } else {
-                            weatherInfoTextView.text = "No weather data available"
-                            Log.e("API", "Weather data is null.")
-                        }
+                        // 데이터 처리 및 UI 업데이트
+                        weatherInfoTextView.text = processor.getWeatherDescription() ?: "Unknown weather"
+                        rainChanceTextView.text = "Chance of rain: ${processor.getRainChance()}%"
+                        temperatureDetailsTextView.text = "Temp: ${processor.getCurrentTemperature()}° • Max: ${processor.getMaxTemperature()}° • Min: ${processor.getMinTemperature()}°"
                     } else {
-                        weatherInfoTextView.text = response.response.header.resultMsg
+                        // 오류 메시지 처리
+                        weatherInfoTextView.text = "Error: ${response.response.header.resultMsg}"
                         Log.e("API", "Error: ${response.response.header.resultMsg}")
                     }
                 }
