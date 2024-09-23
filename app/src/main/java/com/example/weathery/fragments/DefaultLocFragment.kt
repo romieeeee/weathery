@@ -1,6 +1,9 @@
 package com.example.weathery.fragments
 
 import android.annotation.SuppressLint
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,18 +21,26 @@ import com.example.weathery.utils.ApiKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
+
 
 class DefaultLocFragment : Fragment() {
 
     private lateinit var weatherInfoTextView: TextView // 기본 날씨
     private lateinit var rainChanceTextView: TextView // 강수 확률
     private lateinit var temperatureDetailsTextView: TextView // 온도 세부 사항
+
+    private val locationManager = object : LocationListener {
+        override fun onLocationChanged(loc: Location) {
+            val latitude = loc.latitude // 위도
+            val longitude = loc.longitude // 경도
+        }
+
+        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
