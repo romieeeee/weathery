@@ -1,4 +1,4 @@
-package com.example.weathery
+package com.example.weathery.fragments
 
 import android.graphics.PorterDuff
 import android.os.Bundle
@@ -11,8 +11,18 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
+import com.example.weathery.R
+import com.example.weathery.adapter.WeatherPagerAdapter
 
 class HomeFragment : Fragment() {
+
+    /**
+     * 날씨 API 호출에 사용할 파라미터
+     */
+    private var base_date = "20240920"  // 발표 일자
+    private var base_time = "0600"      // 발표 시각
+    private var nx = "55"               // 예보지점 X 좌표
+    private var ny = "127"              // 예보지점 Y 좌표
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,15 +50,15 @@ class HomeFragment : Fragment() {
         // ViewPager 설정
         val viewPager = view.findViewById<ViewPager2>(R.id.view_pager)
         val adapter = WeatherPagerAdapter(requireActivity())
-        viewPager.adapter = adapter
+        viewPager.adapter = adapter // adapter 연결
 
-        // 기본 날씨 (서울)
+        // 기본 날씨 프래그먼트 추가
         adapter.addFragment(DefaultLocFragment())
 
-        // 지역 추가 페이지
-        adapter.addFragment(AddLocFragment { newCity ->
-            adapter.addFragment(DefaultLocFragment.newInstance(newCity))
-            viewPager.currentItem = adapter.itemCount - 1
-        })
+//        // 지역 추가 페이지
+//        adapter.addFragment(AddLocFragment { newCity ->
+//            adapter.addFragment(DefaultLocFragment.newInstance(newCity))
+//            viewPager.currentItem = adapter.itemCount - 1
+//        })
     }
 }
