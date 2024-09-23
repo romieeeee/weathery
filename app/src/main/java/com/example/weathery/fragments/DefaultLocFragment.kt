@@ -18,12 +18,18 @@ import com.example.weathery.utils.ApiKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 class DefaultLocFragment : Fragment() {
 
-    private lateinit var weatherInfoTextView: TextView
-    private lateinit var rainChanceTextView: TextView // 강수 확률 TextView
-    private lateinit var temperatureDetailsTextView: TextView // 온도 세부 사항 TextView
+    private lateinit var weatherInfoTextView: TextView // 기본 날씨
+    private lateinit var rainChanceTextView: TextView // 강수 확률
+    private lateinit var temperatureDetailsTextView: TextView // 온도 세부 사항
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,7 +53,7 @@ class DefaultLocFragment : Fragment() {
         }
 
         // 기본 값 설정
-        val baseDate = arguments?.getString("baseDate") ?: "20240923"
+        val baseDate = arguments?.getString("baseDate") ?: getFormattedDate()
         val baseTime = arguments?.getString("baseTime") ?: "0600"
         val nx = arguments?.getInt("nx") ?: 55
         val ny = arguments?.getInt("ny") ?: 127
@@ -89,8 +95,8 @@ class DefaultLocFragment : Fragment() {
                         temperatureDetailsTextView.text = "기온: ${processor.getCurrentTemperature()}° • 습도: ${processor.getHumidity()}% • 풍속: ${processor.getWindSpeed()} m/s"
                     } else {
                         // 오류가 발생한 경우의 처리
-                        weatherInfoTextView.text = "에러: ${response.response.header.resultMsg}"
-                        Log.e("API", "에러: ${response.response.header.resultMsg}")
+                        weatherInfoTextView.text = "Error: ${response.response.header.resultMsg}"
+                        Log.e("API", "Error: ${response.response.header.resultMsg}")
                     }
                 }
             } catch (e: Exception) {
@@ -98,6 +104,17 @@ class DefaultLocFragment : Fragment() {
                 Log.e("API", "API Call Failed: ${e.message}")
             }
         }
+    }
+
+    private fun getFormattedDate() : String {
+        // 현재 시간 가져오기
+        val currentTime = LocalDateTime.now()
+
+        // 포맷팅 (yyyymmdd 형식)
+        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+        val formattedTime = currentTime.format(formatter)
+
+        return formattedTime
     }
 
     /**
