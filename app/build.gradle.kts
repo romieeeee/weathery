@@ -79,4 +79,6 @@ dependencies {
     // Retrofit2
     implementation(libs.retrofit)
     implementation(libs.retrofit2.converter.gson) // Gson 컨버터
+
+    implementation(libs.play.services.location)
 }
