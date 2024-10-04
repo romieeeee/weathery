@@ -13,11 +13,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.weathery.MainActivity
 import com.example.weathery.R
 import com.example.weathery.data.WeatherDataProcessor
 import com.example.weathery.network.RetrofitClient
 import com.example.weathery.network.WeatherApi
 import com.example.weathery.utils.ApiKey
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -63,6 +65,8 @@ class DefaultLocFragment : Fragment() {
             findNavController().navigate(R.id.action_homeFragment_to_detailFragment)
         }
 
+        getLocationData()
+
         // 기본 값 설정
         val baseDate = arguments?.getString("baseDate") ?: getFormattedDate()
         val baseTime = arguments?.getString("baseTime") ?: "0600"
@@ -71,6 +75,18 @@ class DefaultLocFragment : Fragment() {
 
         // 날씨 데이터를 가져와서 화면에 표시하는 함수 호출
         fetchWeatherData(baseDate, baseTime, nx, ny)
+    }
+
+    /**
+     * 위치 정보를 받아오는 함수
+     *
+     */
+    private fun getLocationData(){
+        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+
+        // longitude latitude 반환
+
     }
 
     /**

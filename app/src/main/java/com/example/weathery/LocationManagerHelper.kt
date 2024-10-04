@@ -1,5 +1,7 @@
 package com.example.weathery
 
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationListener
@@ -35,15 +37,15 @@ class LocationManagerHelper(private val context: Context, private val listener: 
     fun checkPermissions(fragment: Fragment): Boolean {
         // 위치 권한이 부여되었는지 확인
         return if (ActivityCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_FINE_LOCATION
+                context, ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED ||
             ActivityCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_COARSE_LOCATION
+                context, ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             // 만약 권한이 없다면, 사용자에게 권한을 요청
             fragment.requestPermissions(
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION),
                 100
             )
             false // 권한이 허용되지 않음
