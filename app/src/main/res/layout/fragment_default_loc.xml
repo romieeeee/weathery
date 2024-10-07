@@ -33,7 +33,7 @@
         app:layout_constraintVertical_bias="0.212" />
 
     <TextView
-        android:id="@+id/tv_weather_condition"
+        android:id="@+id/tv_weather_info"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
@@ -47,7 +47,7 @@
         app:layout_constraintTop_toBottomOf="@id/tv_rain_chance" />
 
     <TextView
-        android:id="@+id/tv_loc"
+        android:id="@+id/tv_location"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
@@ -57,11 +57,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_weather_condition" />
+        app:layout_constraintTop_toBottomOf="@id/tv_weather_info" />
 
     <!-- Temperature and other details -->
     <TextView
-        android:id="@+id/tv_temperature_details"
+        android:id="@+id/tv_weather_details"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -71,5 +71,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_loc" />
+        app:layout_constraintTop_toBottomOf="@id/tv_location" />
 </androidx.constraintlayout.widget.ConstraintLayout>
