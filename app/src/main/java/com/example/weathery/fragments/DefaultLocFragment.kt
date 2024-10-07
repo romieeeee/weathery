@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.weathery.R
@@ -21,6 +22,7 @@ import com.example.weathery.data.WeatherDataProcessor
 import com.example.weathery.network.RetrofitClient
 import com.example.weathery.network.WeatherApi
 import com.example.weathery.utils.ApiKey
+import com.example.weathery.viewmodels.SharedViewModel
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,6 +33,8 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class DefaultLocFragment : Fragment() {
+
+    private val sharedViewModel: SharedViewModel by activityViewModels()
 
     private lateinit var tv_rain_chance: TextView
     private lateinit var tv_weather_info: TextView
@@ -131,7 +135,16 @@ class DefaultLocFragment : Fragment() {
             try {
                 // API 요청
                 val response = RetrofitClient.getInstance().create(WeatherApi::class.java)
-                    .getWeatherData(apiKey, 1, 1000, "JSON", baseDate, "0600", lat.toInt(), lon.toInt())
+                    .getWeatherData(
+                        apiKey,
+                        1,
+                        1000,
+                        "JSON",
+                        baseDate,
+                        "0600",
+                        lat.toInt(),
+                        lon.toInt()
+                    )
                 Log.d("API Request", "${lat.toInt()}, ${lon.toInt()}") // 요청 URL
 
                 withContext(Dispatchers.Main) {
@@ -172,7 +185,8 @@ class DefaultLocFragment : Fragment() {
     ) {
         tv_weather_info.text = skyCondition ?: "날씨 정보 없음"
         tv_rain_chance.text = "강수 확률: ${rainfall ?: "정보 없음"}%"
-        tv_weather_details.text = "기온: ${temperature ?: "정보 없음"}° • 습도: ${humidity ?: "정보 없음"}% • 풍속: ${windSpeed ?: "정보 없음"} m/s"
+        tv_weather_details.text =
+            "기온: ${temperature ?: "정보 없음"}° • 습도: ${humidity ?: "정보 없음"}% • 풍속: ${windSpeed ?: "정보 없음"} m/s"
     }
 
     /**
@@ -210,15 +224,20 @@ class DefaultLocFragment : Fragment() {
 
     @SuppressLint("MissingPermission")
     private fun setLocationText(textView: TextView) {
-        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        val fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireContext())
         fusedLocationProviderClient.lastLocation
             .addOnSuccessListener { success: Location? ->
                 success?.let { location ->
                     val address = getAddress(location.latitude, location.longitude)?.get(0)
-                    textView.text =
-                        address?.let {
-                            "${it.adminArea} ${it.thoroughfare}"
-                        }
+                    val locationText = address?.let{
+                        "${it.adminArea} ${it.thoroughfare}"
+                    } ?: "주소를 찾을 수 없음"
+
+                    textView.text = locationText
+
+                    // ViewModel에 주소 업데이트
+                    sharedViewModel.updateLocationText(locationText)
                 }
             }
             .addOnFailureListener { fail ->
