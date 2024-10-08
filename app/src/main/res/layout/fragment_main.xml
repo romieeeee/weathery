@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_radius_main_grad"
+    tools:context=".fragments.HomeFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="25sp"
+        android:orientation="vertical"
+        android:paddingTop="80sp">
+
+        <TextView
+            android:id="@+id/location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/pre_bold"
+            android:paddingStart="5sp"
+            android:text="서울시\n논현동"
+            android:textColor="@color/black"
+            android:textSize="36sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/today_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/pre_medium"
+            android:text="MM월 dd일 E요일"
+            android:textColor="@color/black"
+            android:textSize="18sp" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20sp"
+            android:paddingHorizontal="15sp">
+
+            <ImageView
+                android:id="@+id/iv_weather"
+                android:layout_width="190dp"
+                android:layout_height="140dp"
+                android:src="@drawable/w_cloudy"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/now_temperature"
+                android:layout_width="wrap_content"
+                android:layout_height="80sp"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/pre_extra"
+                android:text="19"
+                android:textColor="@color/black"
+                android:textSize="70sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.3"
+                app:layout_constraintStart_toEndOf="@id/iv_weather"
+                app:layout_constraintTop_toTopOf="@id/iv_weather" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/degree"
+                app:layout_constraintStart_toEndOf="@+id/now_temperature"
+                app:layout_constraintTop_toTopOf="@+id/now_temperature" />
+
+
+            <TextView
+                android:id="@+id/now_weather"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5sp"
+                android:fontFamily="@font/pre_regular"
+                android:gravity="center"
+                android:text="맑음"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="@id/now_temperature"
+                app:layout_constraintStart_toStartOf="@+id/now_temperature"
+                app:layout_constraintTop_toBottomOf="@id/now_temperature" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginTop="25sp"
+            android:background="@drawable/bg_radius_main_trans"
+            android:gravity="center|left"
+            android:orientation="horizontal"
+            android:paddingStart="20sp">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/rainfall" />
+
+            <TextView
+                android:layout_width="75dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15sp"
+                android:fontFamily="@font/pre_regular"
+                android:text="강수 확률"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/rainfall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="95sp"
+                android:fontFamily="@font/pre_regular"
+                android:text="3cm"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginTop="20sp"
+            android:background="@drawable/bg_radius_main_trans"
+            android:gravity="center|left"
+            android:orientation="horizontal"
+            android:paddingStart="20sp">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/wind" />
+
+            <TextView
+                android:layout_width="75dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15sp"
+                android:fontFamily="@font/pre_regular"
+                android:text="풍속"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/wind"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="95sp"
+                android:fontFamily="@font/pre_regular"
+                android:text="19km/h"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginTop="20sp"
+            android:background="@drawable/bg_radius_main_trans"
+            android:gravity="center|left"
+            android:orientation="horizontal"
+            android:paddingStart="20sp">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/humidity" />
+
+            <TextView
+                android:layout_width="75dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15sp"
+                android:fontFamily="@font/pre_regular"
+                android:text="습도"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/humidity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="95sp"
+                android:fontFamily="@font/pre_regular"
+                android:text="64%"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="65dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15sp"
+            android:layout_marginTop="35sp"
+            android:fontFamily="@font/pre_bold"
+            android:text="주간예보"
+            android:textColor="@color/black"
+            android:textSize="18sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginTop="5sp"
+            android:layout_marginBottom="30sp"
+            android:background="@drawable/bg_radius_main_trans"
+            android:gravity="center|left"
+            android:orientation="horizontal"
+            android:paddingStart="20sp" />
+    </LinearLayout>
+
+</ScrollView>

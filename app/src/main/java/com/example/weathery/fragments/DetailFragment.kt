@@ -27,10 +27,6 @@ class DetailFragment : Fragment() {
 
         // Toolbar 세부 설정
         val toolbar = (activity as? AppCompatActivity)?.findViewById<Toolbar>(R.id.toolbar)
-        val titleView = toolbar?.findViewById<TextView>(R.id.toolbar_title)
-
-        titleView?.text = "Berlin, Germany" // 지역명 받아와서 설정
-        titleView?.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
 
         // 메뉴 버튼 색상 변경
         toolbar?.navigationIcon?.setColorFilter(

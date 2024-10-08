@@ -36,13 +36,6 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false) // 기본 title 숨기기
 
-        val titleView = toolbar.findViewById<TextView>(R.id.toolbar_title)
-
-        // Viewmodel로부터 위치 정보 받아서 toolbar에 set
-        sharedViewModel.locationText.observe(this, Observer { location ->
-            titleView.text = location
-        })
-
         // drawer layout 설정
         drawerLayout = findViewById(R.id.drawer_layout)
 
@@ -51,7 +44,7 @@ class MainActivity : AppCompatActivity() {
 
         // AppBarConfiguration 설정
         appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.homeFragment), // HomeFragment에서는 메뉴 아이콘
+            setOf(R.id.mainFragment), // MainFragment에서는 메뉴 아이콘
             drawerLayout // DrawerLayout을 함께 사용할 때 설정
         )
 
@@ -65,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         // 메뉴 아이템의 색상 변경
         val drawerToggle = toolbar.navigationIcon
         drawerToggle?.setColorFilter(
-            ContextCompat.getColor(this, R.color.dark_blue),
+            ContextCompat.getColor(this, R.color.black),
             PorterDuff.Mode.SRC_IN
         )
     }
@@ -74,18 +67,5 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        // 프래그먼트 전환 시에도 ViewModel을 통해 Toolbar 텍스트 업데이트
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
-        val titleView = toolbar.findViewById<TextView>(R.id.toolbar_title)
-
-        // ViewModel로부터 위치 정보를 다시 받아서 업데이트
-        sharedViewModel.locationText.value?.let { location ->
-            titleView.text = location
-        }
     }
 }
