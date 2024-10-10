@@ -2,7 +2,12 @@ package com.example.weathery
 
 import android.graphics.PorterDuff
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.ImageView
+import android.widget.SearchView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -32,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // toolbar 설정
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        val toolbar: Toolbar = findViewById(R.id.custom_toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false) // 기본 title 숨기기
 
@@ -52,15 +57,43 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         // NavigationView와 NavController 연결
-        val navView: NavigationView = findViewById(R.id.navigation_view)
-        navView.setupWithNavController(navController)
+//        val navView: NavigationView = findViewById(R.id.navigation_view)
+//        navView.setupWithNavController(navController)
+    }
 
-        // 메뉴 아이템의 색상 변경
-        val drawerToggle = toolbar.navigationIcon
-        drawerToggle?.setColorFilter(
-            ContextCompat.getColor(this, R.color.black),
-            PorterDuff.Mode.SRC_IN
-        )
+    // 메뉴를 툴바에 표시
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.toolbar_menu, menu)
+
+        // SearchView 설정
+        val searchItem: MenuItem? = menu?.findItem(R.id.action_search)
+        val searchView = searchItem?.actionView as? SearchView
+        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                // 검색어 제출 시 처리할 작업
+                Toast.makeText(this@MainActivity, "Search: $query", Toast.LENGTH_SHORT).show()
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // 검색어가 변경될 때 처리할 작업
+                return false
+            }
+        })
+
+        return true
+    }
+
+    // 메뉴 아이템 클릭 처리
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_list -> {
+                // 리스트 아이콘 클릭 시 처리할 작업
+                Toast.makeText(this, "List clicked", Toast.LENGTH_SHORT).show()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     // 뒤로가기 버트 동작 처리

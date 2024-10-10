@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/loc_item"
-        android:title="@null">
-        <menu>
-            <item
-                android:id="@+id/add_loc"
-                android:icon="@drawable/tb_add_loc"
-                android:title="Add Location" />
+<!--    <item-->
+<!--        android:id="@+id/loc_item"-->
+<!--        android:title="@null">-->
+<!--        <menu>-->
+<!--            <item-->
+<!--                android:id="@+id/add_loc"-->
+<!--                android:icon="@drawable/tb_add_loc"-->
+<!--                android:title="Add Location" />-->
 
-            <item
-                android:id="@+id/loc1"
-                android:icon="@drawable/tb_loc"
-                android:title="@string/loc1" />
+<!--            <item-->
+<!--                android:id="@+id/loc1"-->
+<!--                android:icon="@drawable/tb_loc"-->
+<!--                android:title="@string/loc1" />-->
 
-            <item
-                android:id="@+id/loc2"
-                android:icon="@drawable/tb_loc"
-                android:title="@string/loc2" />
+<!--            <item-->
+<!--                android:id="@+id/loc2"-->
+<!--                android:icon="@drawable/tb_loc"-->
+<!--                android:title="@string/loc2" />-->
 
-            <item
-                android:id="@+id/loc3"
-                android:icon="@drawable/tb_loc"
-                android:title="@string/loc3" />
-        </menu>
-    </item>
+<!--            <item-->
+<!--                android:id="@+id/loc3"-->
+<!--                android:icon="@drawable/tb_loc"-->
+<!--                android:title="@string/loc3" />-->
+<!--        </menu>-->
+<!--    </item>-->
 
-    <item
-        android:id="@+id/etc_item"
-        android:title="@null">
-        <menu>
-            <item
-                android:id="@+id/settings"
-                android:title="Settings" />
+<!--    <item-->
+<!--        android:id="@+id/etc_item"-->
+<!--        android:title="@null">-->
+<!--        <menu>-->
+<!--            <item-->
+<!--                android:id="@+id/settings"-->
+<!--                android:title="Settings" />-->
 
-            <item
-                android:id="@+id/share"
-                android:title="Share this app" />
+<!--            <item-->
+<!--                android:id="@+id/share"-->
+<!--                android:title="Share this app" />-->
 
-            <item
-                android:id="@+id/rate"
-                android:title="Rate this app" />
-        </menu>
-    </item>
+<!--            <item-->
+<!--                android:id="@+id/rate"-->
+<!--                android:title="Rate this app" />-->
+<!--        </menu>-->
+<!--    </item>-->
 
 </menu>
