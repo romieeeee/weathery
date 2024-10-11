@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph.xml"
-    app:startDestination="@id/mainFragment">
+    app:startDestination="@id/homeFragment">
 
     <fragment
         android:id="@+id/detailFragment"
@@ -12,13 +12,18 @@
         tools:layout="@layout/fragment_detail" />
 
     <fragment
-        android:id="@+id/mainFragment"
-        android:name="com.example.weathery.fragments.HomeFragment"
+        android:id="@+id/weatherFragment"
+        android:name="com.example.weathery.fragments.WeatherFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_home" >
+        tools:layout="@layout/fragment_weather" >
         <action
             android:id="@+id/action_mainFragment_to_detailFragment"
             app:destination="@id/detailFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.weathery.fragments.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" />
 
 </navigation>
