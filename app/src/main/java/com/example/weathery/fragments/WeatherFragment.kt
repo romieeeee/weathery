@@ -1,5 +1,6 @@
 package com.example.weathery.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -24,6 +25,8 @@ class WeatherFragment : Fragment() {
     companion object {
         // newInstance를 사용해 데이터를 전달받음
         fun newInstance(
+            cityName: String?,
+            date: String?,
             temperature: String?,
             skyCondition: String?,
             rainfall: String?,
@@ -32,6 +35,8 @@ class WeatherFragment : Fragment() {
         ): WeatherFragment {
             val fragment = WeatherFragment()
             val args = Bundle().apply {
+                putString("CITY_NAME", cityName)
+                putString("DATE", date)
                 putString("TEMPERATURE", temperature)
                 putString("SKY_CONDITION", skyCondition)
                 putString("RAINFALL", rainfall)
@@ -70,8 +75,11 @@ class WeatherFragment : Fragment() {
         tvHumidity = view.findViewById(R.id.humidity)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setWeatherData() {
         arguments?.let {
+            tvLocation.text = it.getString("CITY_NAME") ?: "알 수 없는 위치"
+            tvTodayDate.text = it.getString("DATE") ?: "날짜 없음"
             tvNowTemp.text = it.getString("TEMPERATURE") ?: "정보 없음"
             tvNowWeather.text = it.getString("SKY_CONDITION") ?: "정보 없음"
             tvRainfall.text = "${it.getString("RAINFALL") ?: "정보 없음"}%"

@@ -20,8 +20,12 @@ class WeatherRepository {
         val baseDate = getFormattedDate()
         val baseTime = getFormattedTime()
         val apiKey = ApiKey.API_KEY
+//        Log.d("API", "fetchWeatherData :: called (${lat}, ${lon})")
+
 
         return withContext(Dispatchers.IO) {
+            Log.d("API", "fetchWeatherData :: called success (${lat}, ${lon})")
+
             try {
                 val response = RetrofitClient.getInstance().create(WeatherApi::class.java)
                     .getWeatherData(
@@ -48,7 +52,6 @@ class WeatherRepository {
             }
         }
     }
-
 
     /**
      * 현재 날짜를 yyyyMMdd 형식으로 반환하는 함수
