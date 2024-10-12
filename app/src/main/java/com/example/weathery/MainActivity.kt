@@ -1,7 +1,7 @@
 package com.example.weathery
 
 import android.os.Bundle
-import android.view.View
+import android.util.Log
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -15,9 +15,7 @@ import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
 
-
     private lateinit var toolbar: Toolbar
-
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var locationManager: LocationManager
 
@@ -27,12 +25,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var navView: NavigationView
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // init
+        // Init
         toolbar = findViewById(R.id.toolbar)
         listButton = findViewById(R.id.action_list)
         searchButton = findViewById(R.id.action_search)
@@ -42,26 +39,33 @@ class MainActivity : AppCompatActivity() {
         navController = findNavController(R.id.nav_host_fragment)
         navView = findViewById(R.id.navigation_view)
 
-        // toolbar 설정
+        // Toolbar 설정
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false) // 기본 title 숨기기
 
-        listButton.setOnClickListener(View.OnClickListener {
+        listButton.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
-        })
-
+        }
 
         // NavigationView와 NavController 연결
         navView.setupWithNavController(navController)
 
-        // 위치 권한 확인 및 요청 로직
+        // LocationManager 초기화
         locationManager = LocationManager(this)
-        if (!locationManager.checkLocationPermission()) {
+
+        // 위치 권한 확인 및 요청
+        requestLocationPermission()
+    }
+
+    private fun requestLocationPermission() {
+        if (locationManager.checkLocationPermission()) {
+            Log.d("Location", "위치 권한이 이미 허용되었습니다.")
+        } else {
             locationManager.requestLocationPermission { isGranted ->
                 if (isGranted) {
-                    // 권한 부여 시
+                    Log.d("Location", "위치 권한이 허용되었습니다.")
                 } else {
-                    // 권한 거부 시 처리 (필요시 추가 가능)
+                    Log.d("Location", "위치 권한이 거부되었습니다.")
                 }
             }
         }

@@ -12,6 +12,7 @@ import com.example.weathery.R
 import com.example.weathery.adapter.ViewPagerAdapter
 import com.example.weathery.data.WeatherDataProcessor
 import com.example.weathery.repository.WeatherRepository
+import com.example.weathery.utils.LocationManager
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,9 +30,12 @@ class HomeFragment : Fragment() {
     private val weatherDataList = mutableListOf<WeatherDataProcessor>()
     private val cityNames = mutableListOf<String>() // 도시명 리스트
     private val dates = mutableListOf<String>() // 날짜 리스트
+//    private val cities = mutableListOf<Pair<Double, Double>>() // 도시 좌표 목록
+
+    private lateinit var locationManager: LocationManager
 
     // 도시 좌표 목록 (위도, 경도만 가지고 있음)
-    private val cities = listOf(
+    private val cities = mutableListOf(
         Pair(37.5665, 126.9780), // 서울
         Pair(35.1796, 129.0756), // 부산
         Pair(33.4996, 126.5312)  // 제주
@@ -47,7 +51,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        tabLayout = view.findViewById(R.id.tabLayout)
+        locationManager = LocationManager(requireContext())
         viewPager = view.findViewById(R.id.viewPager)
 
         // 어댑터 초기화
@@ -58,10 +62,30 @@ class HomeFragment : Fragment() {
         dotsIndicator = view.findViewById(R.id.dots_indicator)
         dotsIndicator.attachTo(viewPager)
 
-        fetchWeatherDataForCities() // 도시별 날씨 데이터 받아오기
+        // 현재 위치를 가져와서 cities에 추가
+        getCurrentLocationAndUpdateCities()
     }
 
-    // 날씨 데이터 받아오기
+    private fun getCurrentLocationAndUpdateCities() {
+        if (locationManager.checkLocationPermission()) {
+            locationManager.getLastKnownLocation(
+                onSuccess = { location ->
+                    location?.let {
+                        // 현재 위치를 cities의 첫 번째 요소로 추가
+                        cities.add(0, Pair(it.latitude, it.longitude))
+                        fetchWeatherDataForCities() // 도시별 날씨 데이터 받아오기
+                    }
+                },
+                onFailure = { exception ->
+                    Log.e("Location", "위치 가져오기 실패: ${exception.message}")
+                }
+            )
+        } else {
+            // 권한이 없는 경우 처리
+            Log.d("Location", "위치 권한이 거부되었습니다.")
+        }
+    }
+
     private fun fetchWeatherDataForCities() {
         CoroutineScope(Dispatchers.Main).launch {
             weatherDataList.clear() // 기존 데이터 삭제
@@ -80,7 +104,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // 비동기적으로 도시별 날씨 데이터를 받아오는 함수
     private suspend fun fetchWeatherForCity(lat: Double, lon: Double): WeatherDataProcessor? {
         return try {
             val result = weatherRepository.fetchWeatherData(lat, lon)
@@ -91,7 +114,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // 위도와 경도를 기반으로 도시명을 가져오는 함수
     private fun getCityNameFromCoordinates(lat: Double, lon: Double): String {
         val geocoder = Geocoder(requireContext(), Locale.KOREA)
 
@@ -99,7 +121,6 @@ class HomeFragment : Fragment() {
             val addresses = geocoder.getFromLocation(lat, lon, 1)
             if (!addresses.isNullOrEmpty()) {
                 val address = addresses[0]
-
                 address?.let {
                     if (it.locality.isNullOrEmpty()) {
                         "${it.adminArea}\n${it.thoroughfare}"
@@ -108,20 +129,16 @@ class HomeFragment : Fragment() {
                     } else {
                         "${it.locality}\n${it.thoroughfare}"
                     }
-//                    "${it.adminArea} ${it.locality} ${it.thoroughfare}" // 시 구 동 정보를 가져옴
                 } ?: "주소를 찾을 수 없음"
-
             } else {
                 "알 수 없는 위치"
             }
         } catch (e: Exception) {
-            Log.e("Geocoder", "Failed to get city name: ${e.message}")
+            Log.e("Geocoder", "도시명 가져오기 실패: ${e.message}")
             "알 수 없는 위치"
         }
     }
 
-
-    // 현재 날짜를 yyyy년 MM월 dd일 형식으로 반환하는 함수
     private fun getFormattedDate(): String {
         val currentTime = LocalDateTime.now()
         val formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")

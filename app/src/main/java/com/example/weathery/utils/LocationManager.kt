@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
-import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
@@ -34,8 +33,6 @@ class LocationManager(private val context: Context) {
     // 마지막 위치를 가져오는 함수
     @SuppressLint("MissingPermission")
     fun getLastKnownLocation(onSuccess: (Location?) -> Unit, onFailure: (Exception) -> Unit) {
-        Log.d("Location", "getLastKnownLocation :: called")
-
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
         fusedLocationClient.lastLocation
