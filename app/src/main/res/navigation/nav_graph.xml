@@ -6,17 +6,15 @@
     app:startDestination="@id/homeFragment">
 
     <fragment
-        android:id="@+id/homeFragment"
-        android:name="com.example.weathery.HomeFragment"
-        android:label="fragment_home"
-        tools:layout="@layout/fragment_home">
-        <action
-            android:id="@+id/action_homeFragment_to_detailFragment"
-            app:destination="@id/detailFragment" />
-    </fragment>
+        android:id="@+id/weatherFragment"
+        android:name="com.example.weathery.fragments.WeatherFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_weather" />
+
     <fragment
-        android:id="@+id/detailFragment"
-        android:name="com.example.weathery.DetailFragment"
-        android:label="fragment_detail"
-        tools:layout="@layout/fragment_detail" />
+        android:id="@+id/homeFragment"
+        android:name="com.example.weathery.fragments.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" />
+
 </navigation>
