@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="25sp"
         android:orientation="vertical"
-        android:paddingTop="80sp">
+        android:paddingTop="70dp">
 
         <TextView
             android:id="@+id/location"
