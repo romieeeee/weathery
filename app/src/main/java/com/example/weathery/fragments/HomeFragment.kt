@@ -12,6 +12,7 @@ import com.example.weathery.R
 import com.example.weathery.adapter.ViewPagerAdapter
 import com.example.weathery.data.WeatherDataProcessor
 import com.example.weathery.repository.WeatherRepository
+import com.tbuonomo.viewpagerdotsindicator.DotsIndicator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,6 +22,7 @@ import java.util.Locale
 
 class HomeFragment : Fragment() {
 
+    private lateinit var dotsIndicator: DotsIndicator
     private lateinit var viewPager: ViewPager2
     private lateinit var adapter: ViewPagerAdapter
     private val weatherRepository by lazy { WeatherRepository() }
@@ -44,11 +46,17 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+//        tabLayout = view.findViewById(R.id.tabLayout)
         viewPager = view.findViewById(R.id.viewPager)
 
         // 어댑터 초기화
         adapter = ViewPagerAdapter(requireActivity(), weatherDataList, cityNames, dates)
         viewPager.adapter = adapter
+
+        // indicator를 viewpager와 연결
+        dotsIndicator = view.findViewById(R.id.dots_indicator)
+        dotsIndicator.attachTo(viewPager)
 
         fetchWeatherDataForCities() // 도시별 날씨 데이터 받아오기
     }
