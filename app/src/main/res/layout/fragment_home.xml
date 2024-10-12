@@ -18,7 +18,7 @@
         android:layout_gravity="center_horizontal"
         app:dotsColor="@color/black"
         app:dotsCornerRadius="8dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="35dp"
         app:dotsSize="9dp"
         app:dotsSpacing="8dp"
         app:dotsWidthFactor="4"
