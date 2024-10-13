@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var locationManager: LocationManager
 
     private lateinit var listButton: ImageButton
-    private lateinit var searchButton: android.widget.SearchView
+    private lateinit var searchButton: ImageButton
 
     private lateinit var navController: NavController
     private lateinit var navView: NavigationView
@@ -45,6 +45,10 @@ class MainActivity : AppCompatActivity() {
 
         listButton.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
+        }
+
+        searchButton.setOnClickListener {
+            navController.navigate(R.id.action_homeFragment_to_GMapFragment)
         }
 
         // NavigationView와 NavController 연결

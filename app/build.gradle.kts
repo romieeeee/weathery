@@ -84,4 +84,7 @@ dependencies {
 
     // indicator
     implementation("com.tbuonomo:dotsindicator:5.0")
+
+    // google maps api
+    implementation("com.google.android.gms:play-services-maps:19.0.0")
 }
