@@ -1,21 +1,28 @@
 package com.example.weathery.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.weathery.R
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 
 class GMapFragment : Fragment(), OnMapReadyCallback {
 
-    // MapView를 늦은 초기화(lateinit)를 통해 나중에 초기화합니다.
     private lateinit var mapView: MapView
     private var googleMap: GoogleMap? = null
 
@@ -23,39 +30,80 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // XML 파일을 통해 Fragment의 뷰를 생성합니다.
         return inflater.inflate(R.layout.fragment_gmap, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // MapView를 뷰에서 찾아서 초기화하고, 생명 주기를 맞춰줍니다.
+        // init
+
         mapView = view.findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
 
-        // MapView가 준비되면 콜백을 통해 지도를 로드합니다.
+
+        // 콜백을 통해 지도를 로드
         mapView.getMapAsync(this)
+
+        // Places 초기화
+        if (!Places.isInitialized()) {
+            Places.initialize(requireContext(), "AIzaSyAlOHnrk2qe3bpt9STiuM_2UDVXBqCVgjI")
+        }
+
+        // AutoCompleteSupportFragment 초기화
+        val autocompleteFragment = childFragmentManager.findFragmentById(R.id.autocomplete_fragment)
+                as AutocompleteSupportFragment
+
+        // 장소 검색 필터 설정 (예: 도시만 필터링하고 싶다면 여기에 설정 가능)
+        autocompleteFragment.setPlaceFields(
+            listOf(
+                Place.Field.ID,
+                Place.Field.NAME,
+                Place.Field.LAT_LNG
+            )
+        )
+
+        // 장소가 선택되면 호출되는 리스너
+        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            override fun onPlaceSelected(place: Place) {
+                // 선택한 장소의 좌표(LatLng)를 가져와 지도의 카메라를 이동
+                val latLng = place.latLng
+                if (latLng != null) {
+                    googleMap?.moveCamera(newLatLngZoom(latLng, 15f))
+
+                    // 선택한 장소에 마커 추가
+                    googleMap?.addMarker(MarkerOptions().position(latLng).title(place.name))
+                }
+            }
+
+            override fun onError(status: com.google.android.gms.common.api.Status) {
+                // 에러 발생 시 Toast 메시지 출력
+                Toast.makeText(
+                    requireContext(),
+                    "Error: ${status.statusMessage}",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                Log.e("GMAP", "${status.statusMessage}")
+            }
+        })
     }
 
     // Google Map이 준비되었을 때 호출되는 콜백 메서드
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
 
-        // 마커를 표시할 위치 (서울의 좌표)
+        // 기본 마커 설정 (서울)
         val seoul = LatLng(37.568291, 126.997780)
-
-        // 해당 위치에 마커를 추가합니다.
         googleMap?.addMarker(MarkerOptions().position(seoul).title("여기"))
-
-        // 카메라를 지정된 좌표로 이동하면서 줌을 동시에 설정합니다.
         googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul, 15f))
     }
 
-    // Fragment의 생명 주기에 맞춰 MapView의 생명 주기도 호출해줍니다.
+    // Fragment의 생명 주기에 맞춰 MapView의 생명 주기도 호출
     override fun onStart() {
         super.onStart()
         mapView.onStart()
+        (activity as AppCompatActivity?)!!.supportActionBar!!.hide()
     }
 
     override fun onResume() {
@@ -71,6 +119,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
     override fun onStop() {
         super.onStop()
         mapView.onStop()
+        (activity as AppCompatActivity?)!!.supportActionBar!!.show()
     }
 
     override fun onLowMemory() {

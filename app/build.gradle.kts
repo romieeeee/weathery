@@ -26,7 +26,7 @@ android {
             )
         }
     }
-    
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -53,6 +53,7 @@ dependencies {
 
     // ViewPager2 사용
     implementation(libs.androidx.viewpager2)
+    implementation(libs.androidx.recyclerview)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -71,19 +72,21 @@ dependencies {
     // Testing Navigation
     androidTestImplementation(libs.androidx.navigation.testing)
 
-    implementation (libs.material.v190)
+    implementation(libs.material.v190)
 
     // drawerlayout
-    implementation (libs.androidx.drawerlayout)
+    implementation(libs.androidx.drawerlayout)
 
     // Retrofit2
     implementation(libs.retrofit)
     implementation(libs.retrofit2.converter.gson) // Gson 컨버터
 
     implementation(libs.play.services.location)
+    implementation(libs.places)
 
     // indicator
     implementation("com.tbuonomo:dotsindicator:5.0")
+
 
     // google maps api
     implementation("com.google.android.gms:play-services-maps:19.0.0")
