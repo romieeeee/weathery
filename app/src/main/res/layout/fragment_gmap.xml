@@ -5,18 +5,21 @@
     android:layout_height="match_parent"
     tools:context=".fragments.GMapFragment">
 
-        <com.google.android.gms.maps.MapView
-            android:id="@+id/mapView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+    <!-- 처음에는 RecyclerView만 보이고, MapView는 숨기기 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/city_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="90dp"
+        android:visibility="visible"
+        tools:listitem="@layout/fragment_list" />
 
-<!--    <androidx.recyclerview.widget.RecyclerView-->
-<!--        android:id="@+id/city_recycler_view"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="0dp"-->
-<!--        android:layout_marginHorizontal="10dp"-->
-<!--        android:layout_marginTop="90dp"-->
-<!--        android:visibility="visible" />-->
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" /> <!-- default: hide -->
 
     <LinearLayout
         android:layout_width="395dp"

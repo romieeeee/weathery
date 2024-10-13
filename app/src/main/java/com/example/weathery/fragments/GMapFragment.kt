@@ -8,7 +8,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import com.example.weathery.R
+import com.example.weathery.adapter.CityAdapter
+import com.example.weathery.data.CityData
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom
 import com.google.android.gms.maps.GoogleMap
@@ -23,8 +26,15 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 
 class GMapFragment : Fragment(), OnMapReadyCallback {
 
+    // recyclerView
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var cityAdapter: CityAdapter
+    private lateinit var itemList: MutableList<CityData>
+
+    // google map
     private lateinit var mapView: MapView
     private var googleMap: GoogleMap? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,15 +47,22 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
         super.onViewCreated(view, savedInstanceState)
 
         // init
+        recyclerView = view.findViewById(R.id.city_recycler_view)
+        itemList = mutableListOf(
+//            CityData("서울시 종로구", "22℃"),
+//            CityData("부산시 해운대구", "23℃")
+        )
+
+        cityAdapter = CityAdapter(itemList)
+        recyclerView.adapter = cityAdapter
 
         mapView = view.findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
 
-
         // 콜백을 통해 지도를 로드
         mapView.getMapAsync(this)
 
-        // Places 초기화
+        // Places API 초기화
         if (!Places.isInitialized()) {
             Places.initialize(requireContext(), "AIzaSyAlOHnrk2qe3bpt9STiuM_2UDVXBqCVgjI")
         }
