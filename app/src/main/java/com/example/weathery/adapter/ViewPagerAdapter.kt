@@ -13,9 +13,7 @@ import com.example.weathery.fragments.WeatherFragment
  */
 class ViewPagerAdapter(
     fragmentActivity: FragmentActivity,
-    private var weatherDataList: List<WeatherDataProcessor> = emptyList(),
-    private val cityNames: List<String>,  // 도시명 리스트
-    private val dates: List<String>       // 날짜 리스트
+    private var weatherDataList: MutableList<WeatherDataProcessor> = mutableListOf(), // MutableList로 변경
 ) : FragmentStateAdapter(fragmentActivity) {
 
     override fun getItemCount(): Int {
@@ -25,11 +23,9 @@ class ViewPagerAdapter(
     // fragment 생성하면서 data 전달
     override fun createFragment(position: Int): Fragment {
         val weatherData = weatherDataList[position]
-        val cityName = cityNames[position]
-        val date = dates[position]
         return WeatherFragment.newInstance(
-            cityName,
-            date,
+            weatherData.getCityName(),
+            weatherData.getDate(),
             weatherData.getCurrentTemperature(),
             weatherData.getSkyCondition(),
             weatherData.getRainfall(),
