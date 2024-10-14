@@ -82,7 +82,7 @@ class WeatherFragment : Fragment() {
             tvTodayDate.text = it.getString("DATE") ?: "날짜 없음"
             tvNowTemp.text = it.getString("TEMPERATURE") ?: "정보 없음"
             tvNowWeather.text = it.getString("SKY_CONDITION") ?: "정보 없음"
-            tvRainfall.text = "${it.getString("RAINFALL") ?: "정보 없음"}%"
+            tvRainfall.text = it.getString("RAINFALL") ?: "정보 없음"
             tvWind.text = "${it.getString("WIND_SPEED") ?: "정보 없음"} m/s"
             tvHumidity.text = "${it.getString("HUMIDITY") ?: "정보 없음"}%"
         }
