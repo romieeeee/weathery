@@ -5,14 +5,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weathery.R
 import com.example.weathery.adapter.CityAdapter
-import com.example.weathery.data.CityData
-import com.google.android.gms.maps.CameraUpdateFactory
+import com.example.weathery.database.City
 import com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -29,12 +27,11 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
     // recyclerView
     private lateinit var recyclerView: RecyclerView
     private lateinit var cityAdapter: CityAdapter
-    private lateinit var itemList: MutableList<CityData>
+    private lateinit var itemList: MutableList<City>
 
     // google map
     private lateinit var mapView: MapView
     private var googleMap: GoogleMap? = null
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,13 +46,14 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
         // init
         recyclerView = view.findViewById(R.id.city_recycler_view)
         itemList = mutableListOf(
-//            CityData("서울시 종로구", "22℃"),
-//            CityData("부산시 해운대구", "23℃")
+            City("서울시 종로구", (37.5665 to 126.9780), "22℃"),
+            City("부산시 해운대구", (35.1796 to 129.0756), "23℃")
         )
 
         cityAdapter = CityAdapter(itemList)
         recyclerView.adapter = cityAdapter
 
+        // init mapView
         mapView = view.findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
 
@@ -67,11 +65,11 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
             Places.initialize(requireContext(), "AIzaSyAlOHnrk2qe3bpt9STiuM_2UDVXBqCVgjI")
         }
 
-        // AutoCompleteSupportFragment 초기화
-        val autocompleteFragment = childFragmentManager.findFragmentById(R.id.autocomplete_fragment)
-                as AutocompleteSupportFragment
+        // AutoCompleteSupportFragment 초기화 (자동완성 검색)
+        val autocompleteFragment =
+            childFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
 
-        // 장소 검색 필터 설정 (예: 도시만 필터링하고 싶다면 여기에 설정 가능)
+        // 장소 검색 필터 설정
         autocompleteFragment.setPlaceFields(
             listOf(
                 Place.Field.ID,
@@ -83,24 +81,20 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
         // 장소가 선택되면 호출되는 리스너
         autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
-                // 선택한 장소의 좌표(LatLng)를 가져와 지도의 카메라를 이동
+                // 선택한 장소의 LatLng 좌표 가져오기
                 val latLng = place.latLng
                 if (latLng != null) {
+                    // 카메라를 선택한 위치로 이동시키고, 마커 추가
                     googleMap?.moveCamera(newLatLngZoom(latLng, 15f))
-
-                    // 선택한 장소에 마커 추가
                     googleMap?.addMarker(MarkerOptions().position(latLng).title(place.name))
                 }
+
+                // 지도 보이기, RecyclerView 숨기기
+                mapView.visibility = View.VISIBLE
+                recyclerView.visibility = View.GONE
             }
 
             override fun onError(status: com.google.android.gms.common.api.Status) {
-                // 에러 발생 시 Toast 메시지 출력
-                Toast.makeText(
-                    requireContext(),
-                    "Error: ${status.statusMessage}",
-                    Toast.LENGTH_LONG
-                ).show()
-
                 Log.e("GMAP", "${status.statusMessage}")
             }
         })
@@ -112,15 +106,15 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
 
         // 기본 마커 설정 (서울)
         val seoul = LatLng(37.568291, 126.997780)
-        googleMap?.addMarker(MarkerOptions().position(seoul).title("여기"))
-        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul, 15f))
+        googleMap?.addMarker(MarkerOptions().position(seoul).title("서울"))
+        googleMap?.moveCamera(newLatLngZoom(seoul, 15f))
     }
 
-    // Fragment의 생명 주기에 맞춰 MapView의 생명 주기도 호출
+    // Fragment 생명주기에 맞춰 MapView 관리
     override fun onStart() {
         super.onStart()
         mapView.onStart()
-        (activity as AppCompatActivity?)!!.supportActionBar!!.hide()
+        (activity as AppCompatActivity).supportActionBar?.hide() // 액션바 숨기기
     }
 
     override fun onResume() {
@@ -136,7 +130,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
     override fun onStop() {
         super.onStop()
         mapView.onStop()
-        (activity as AppCompatActivity?)!!.supportActionBar!!.show()
+        (activity as AppCompatActivity).supportActionBar?.show() // 액션바 다시 보이기
     }
 
     override fun onLowMemory() {
@@ -144,14 +138,8 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
         mapView.onLowMemory()
     }
 
-    // Fragment가 파괴될 때 MapView도 정리합니다.
     override fun onDestroyView() {
         mapView.onDestroy()
         super.onDestroyView()
-    }
-
-    // 메모리 누수를 방지하기 위해 MapView를 null로 설정합니다.
-    override fun onDestroy() {
-        super.onDestroy()
     }
 }
