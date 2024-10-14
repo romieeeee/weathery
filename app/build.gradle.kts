@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -54,6 +55,7 @@ dependencies {
     // ViewPager2 사용
     implementation(libs.androidx.viewpager2)
     implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.room.common)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -89,4 +91,10 @@ dependencies {
 
     // google maps api
     implementation(libs.play.services.maps)
+
+    // room
+    implementation(libs.androidx.room.runtime)
+    annotationProcessor(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 }
