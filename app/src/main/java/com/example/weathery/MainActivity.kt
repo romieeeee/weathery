@@ -62,6 +62,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestLocationPermission() {
+        Log.d("weathery", "requestLocationPermissionl :: called")
         if (locationManager.checkLocationPermission()) {
             Log.d("Location", "위치 권한이 이미 허용되었습니다.")
         } else {

@@ -1,5 +1,6 @@
 package com.example.weathery.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,8 +9,10 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
 import com.example.weathery.R
 import com.example.weathery.adapter.CityAdapter
+import com.example.weathery.database.AppDatabase
 import com.example.weathery.database.City
 import com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom
 import com.google.android.gms.maps.GoogleMap
@@ -21,6 +24,10 @@ import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class GMapFragment : Fragment(), OnMapReadyCallback {
 
@@ -32,6 +39,16 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
     // google map
     private lateinit var mapView: MapView
     private var googleMap: GoogleMap? = null
+
+    // Room 데이터베이스 초기화 (DB 연결을 위한 객체)
+    private val db by lazy {
+        Room.databaseBuilder(
+            requireContext(),
+            AppDatabase::class.java, "weather_table"
+        ).build()
+    }
+
+    private val cityDao by lazy { db.cityDao() } // CityDao 초기화
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,10 +62,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
 
         // init
         recyclerView = view.findViewById(R.id.city_recycler_view)
-        itemList = mutableListOf(
-            City("서울시 종로구", (37.5665 to 126.9780), "22℃"),
-            City("부산시 해운대구", (35.1796 to 129.0756), "23℃")
-        )
+        itemList = mutableListOf()
 
         cityAdapter = CityAdapter(itemList)
         recyclerView.adapter = cityAdapter
@@ -62,7 +76,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
 
         // Places API 초기화
         if (!Places.isInitialized()) {
-            Places.initialize(requireContext(), "AIzaSyAlOHnrk2qe3bpt9STiuM_2UDVXBqCVgjI")
+            Places.initialize(requireContext(), "YOUR_API_KEY")
         }
 
         // AutoCompleteSupportFragment 초기화 (자동완성 검색)
@@ -80,6 +94,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
 
         // 장소가 선택되면 호출되는 리스너
         autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            @SuppressLint("NotifyDataSetChanged")
             override fun onPlaceSelected(place: Place) {
                 // 선택한 장소의 LatLng 좌표 가져오기
                 val latLng = place.latLng
@@ -87,6 +102,24 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
                     // 카메라를 선택한 위치로 이동시키고, 마커 추가
                     googleMap?.moveCamera(newLatLngZoom(latLng, 15f))
                     googleMap?.addMarker(MarkerOptions().position(latLng).title(place.name))
+
+                    // 선택한 도시 데이터를 로컬 DB에 저장
+                    val cityEntity = City(
+                        cityName = place.name ?: "Unknown",
+                        latitude = latLng.latitude,
+                        longitude = latLng.longitude
+                    )
+
+                    // 코루틴을 사용하여 비동기적으로 DB 작업 수행
+                    CoroutineScope(Dispatchers.IO).launch {
+                        cityDao.insertCity(cityEntity) // 도시 데이터를 DB에 저장
+
+                        // UI 업데이트를 위한 작업은 메인 스레드에서 수행해야 함
+                        withContext(Dispatchers.Main) {
+                            itemList.add(cityEntity) // UI 목록에 추가
+                            cityAdapter.notifyDataSetChanged() // 어댑터 업데이트
+                        }
+                    }
                 }
 
                 // 지도 보이기, RecyclerView 숨기기

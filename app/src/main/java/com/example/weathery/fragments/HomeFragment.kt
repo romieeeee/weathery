@@ -12,7 +12,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.weathery.R
 import com.example.weathery.adapter.ViewPagerAdapter
 import com.example.weathery.data.WeatherDataProcessor
-import com.example.weathery.data.WeatherResponse
 import com.example.weathery.database.AppDatabase
 import com.example.weathery.database.City
 import com.example.weathery.repository.WeatherRepository
@@ -21,10 +20,17 @@ import com.tbuonomo.viewpagerdotsindicator.DotsIndicator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+/**
+ * 메인 화면
+ * - 사용자의 현재 위치 가져오기
+ * - 위치를 토대로 도시명 가져오기
+ *  - 날씨 api 호출하기?
+ */
 class HomeFragment : Fragment() {
 
     private lateinit var dotsIndicator: DotsIndicator
@@ -37,16 +43,16 @@ class HomeFragment : Fragment() {
     private val db by lazy {
         Room.databaseBuilder(
             requireContext(),
-            AppDatabase::class.java, "weather"
+            AppDatabase::class.java, "weather_table"
         ).build()
     }
 
     private val cityDao by lazy { db.cityDao() } // CityDao 초기화
     private val weatherDao by lazy { db.weatherDao() } // WeatherDao 초기화
+    private val weatherRepository by lazy {  WeatherRepository(cityDao, weatherDao) }  // cityDao와 weatherDao를 전달
 
-    private val weatherRepository by lazy {
-        WeatherRepository(cityDao, weatherDao) // cityDao와 weatherDao를 전달
-    }
+    private val weatherDataList = mutableListOf<WeatherDataProcessor>() // 날씨 데이터 리스트
+    private val cityNames = mutableListOf<String>() // 도시 이름 리스트
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,7 +68,7 @@ class HomeFragment : Fragment() {
         viewPager = view.findViewById(R.id.viewPager)
 
         // 어댑터 초기화
-        adapter = ViewPagerAdapter(requireActivity(), mutableListOf())
+        adapter = ViewPagerAdapter(requireActivity(), mutableListOf(), cityNames)
         viewPager.adapter = adapter
 
         // indicator를 viewpager와 연결
@@ -75,15 +81,21 @@ class HomeFragment : Fragment() {
 
     /**
      * 마지막 위치를 가져와 DB에 업데이트 하는 함수
-     * 위치 권한 확인 후 마지막 위치 가져
+     * 위치 권한 확인 후 마지막 위치 가져옴
      */
     private fun getCurrentLocationAndUpdateCities() {
         if (locationManager.checkLocationPermission()) {
             locationManager.getLastKnownLocation(
                 onSuccess = { location ->
                     location?.let {
-                        // 현재 위치를 기준으로 도시 데이터 가져오기
-                        fetchWeatherDataForCity(it.latitude, it.longitude) // 위도, 경도로 날씨 데이터 요청
+                        // 도시명 가져오기 및 저장
+                        val cityName = getCityNameFromCoordinates(it.latitude, it.longitude)
+                        val cityEntity = City(cityName = cityName, latitude = it.latitude, longitude = it.longitude)
+
+                        CoroutineScope(Dispatchers.IO).launch {
+                            cityDao.insertCity(cityEntity) // DB에 도시 정보 저장
+                            fetchWeatherDataForCity(it.latitude, it.longitude) // 날씨 데이터 가져오기
+                        }
                     }
                 },
                 onFailure = { exception ->
@@ -91,30 +103,36 @@ class HomeFragment : Fragment() {
                 }
             )
         } else {
-            // 권한이 없는 경우 처리
             Log.d("Location", "위치 권한이 거부되었습니다.")
         }
     }
 
-    private fun fetchWeatherDataForCity(lat: Double, lon: Double) {
-        CoroutineScope(Dispatchers.Main).launch {
-            val cityName = getCityNameFromCoordinates(lat, lon)
-            val cityEntity = City(cityName = cityName, latitude = lat, longitude = lon)
+    // 날씨 데이터 가져오는 함수 (비동기로 호출)
+    private suspend fun fetchWeatherDataForCity(lat: Double, lon: Double) {
+        val weatherData = fetchWeatherForCity(lat, lon)
+        weatherData?.let {
+            weatherDataList.add(it)
+            cityNames.add(getCityNameFromCoordinates(lat, lon))
 
-            // 리포지토리에서 캐싱된 데이터 또는 새로운 날씨 데이터 가져오기
-            val weather = weatherRepository.fetchWeatherForCity(cityEntity)
-
-            weather?.let {
-                // WeatherResponse를 사용해야 하므로 Weather 객체의 정보를 WeatherResponse로 변환해야 함
-                val response = WeatherResponse(it) // 가정: WeatherResponse의 생성자가 Weather를 받도록 변경
-                val processor = WeatherDataProcessor(response) // WeatherResponse를 인자로 전달
-
-                // 어댑터에 데이터를 추가합니다.
-                adapter.updateData(listOf(processor), listOf(cityName), listOf(getCurrentDate())) // 새로운 데이터와 함께 도시명, 날짜 전달
+            // UI 작업은 Main 스레드에서 수행
+            withContext(Dispatchers.Main) {
+                adapter.updateData(weatherDataList, cityNames) // 어댑터 업데이트
             }
         }
     }
 
+    private suspend fun fetchWeatherForCity(lat: Double, lon: Double): WeatherDataProcessor? {
+        return try {
+            // API에서 WeatherResponse 데이터를 가져옴
+            val weatherResponse = weatherRepository.fetchWeatherResponseForCity(lat, lon)
+            weatherResponse?.let { WeatherDataProcessor(it) } // WeatherResponse를 WeatherDataProcessor로 전달
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    // 위도와 경도를 기반으로 도시명을 가져오는 함수
     private fun getCityNameFromCoordinates(lat: Double, lon: Double): String {
         val geocoder = Geocoder(requireContext(), Locale.KOREA)
 
@@ -122,6 +140,7 @@ class HomeFragment : Fragment() {
             val addresses = geocoder.getFromLocation(lat, lon, 1)
             if (!addresses.isNullOrEmpty()) {
                 val address = addresses[0]
+
                 address?.let {
                     if (it.locality.isNullOrEmpty()) {
                         "${it.adminArea}\n${it.thoroughfare}"
@@ -130,20 +149,15 @@ class HomeFragment : Fragment() {
                     } else {
                         "${it.locality}\n${it.thoroughfare}"
                     }
+//                    "${it.adminArea} ${it.locality} ${it.thoroughfare}" // 시 구 동 정보를 가져옴
                 } ?: "주소를 찾을 수 없음"
+
             } else {
                 "알 수 없는 위치"
             }
         } catch (e: Exception) {
-            Log.e("Geocoder", "도시명 가져오기 실패: ${e.message}")
+            Log.e("Geocoder", "Failed to get city name: ${e.message}")
             "알 수 없는 위치"
         }
-    }
-
-    // 현재 날짜를 반환하는 헬퍼 메소드
-    private fun getCurrentDate(): String {
-        // 현재 날짜를 포맷팅하는 코드 구현
-        // 예: "yyyy-MM-dd" 형식으로 반환
-        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
     }
 }

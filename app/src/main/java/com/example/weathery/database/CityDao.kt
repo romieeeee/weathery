@@ -4,8 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
-import androidx.room.Delete
 
 /**
  * DAO 인터페이스
@@ -15,13 +13,13 @@ import androidx.room.Delete
 interface CityDao {
     // 도시 데이터 삽입
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(city: City)
+    suspend fun insertCity(city: City)
 
     // 특정 도시 데이터 가져오기
-    @Query("SELECT * FROM city WHERE cityName = :cityName LIMIT 1")
+    @Query("SELECT * FROM city_table WHERE cityName = :cityName LIMIT 1")
     suspend fun getCity(cityName: String): City?
 
     // 모든 도시 데이터 가져오기
-    @Query("SELECT * FROM city")
+    @Query("SELECT * FROM city_table")
     suspend fun getAllCities(): List<City>
 }

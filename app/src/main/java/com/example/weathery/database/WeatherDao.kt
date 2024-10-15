@@ -13,9 +13,9 @@ import androidx.room.Delete
  */
 @Dao
 interface WeatherDao {
-    @Query("SELECT * FROM weather WHERE cityId = :cityId ORDER BY timestamp DESC LIMIT 1")
-    suspend fun getLatestWeatherByCityId(cityId: Int): Weather?
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWeather(weather: Weather)
+
+    @Query("SELECT * FROM weather_table WHERE cityId = :cityId ORDER BY timestamp DESC LIMIT 1")
+    suspend fun getLatestWeatherByCityId(cityId: Int): Weather?
 }
