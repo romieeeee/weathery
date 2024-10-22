@@ -18,7 +18,7 @@ class WeatherRepository(private val cityDao: CityDao, private val weatherDao: We
     // cityData로 해당 지역의 날씨 데이터 가져오기
     suspend fun fetchWeatherResponseForCity(lat: Double, lon: Double): WeatherResponse? {
         return try {
-            val apiKey = ApiKey.API_KEY
+            val apiKey = ApiKey.W_API_KEY
             val baseDate = getFormattedDate()
             val baseTime = getFormattedTime()
 

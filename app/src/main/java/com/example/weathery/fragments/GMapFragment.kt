@@ -13,7 +13,10 @@ import androidx.room.Room
 import com.example.weathery.R
 import com.example.weathery.adapter.CityAdapter
 import com.example.weathery.database.AppDatabase
-import com.example.weathery.database.City
+import com.example.weathery.database.CityEntity
+import com.example.weathery.database.CityWithWeather
+import com.example.weathery.utils.ApiKey
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -34,7 +37,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
     // recyclerView
     private lateinit var recyclerView: RecyclerView
     private lateinit var cityAdapter: CityAdapter
-    private lateinit var itemList: MutableList<City>
+    private lateinit var cityWeatherList: MutableList<CityWithWeather>
 
     // google map
     private lateinit var mapView: MapView
@@ -62,75 +65,40 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
 
         // init
         recyclerView = view.findViewById(R.id.city_recycler_view)
-        itemList = mutableListOf()
+        cityWeatherList = mutableListOf() // 초기화된 리스트
 
-        cityAdapter = CityAdapter(itemList)
+        cityAdapter = CityAdapter(cityWeatherList)
         recyclerView.adapter = cityAdapter
 
         // init mapView
         mapView = view.findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
-
-        // 콜백을 통해 지도를 로드
         mapView.getMapAsync(this)
 
-        // Places API 초기화
-        if (!Places.isInitialized()) {
-            Places.initialize(requireContext(), "YOUR_API_KEY")
-        }
+        // DB에서 도시와 날씨 정보를 가져와 RecyclerView 업데이트
+        loadCityWeatherData()
 
-        // AutoCompleteSupportFragment 초기화 (자동완성 검색)
-        val autocompleteFragment =
-            childFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
+        // 장소 자동완성 기능도 추가 (기존 코드 유지)
+        setupAutoComplete()
 
-        // 장소 검색 필터 설정
-        autocompleteFragment.setPlaceFields(
-            listOf(
-                Place.Field.ID,
-                Place.Field.NAME,
-                Place.Field.LAT_LNG
-            )
-        )
+    }
 
-        // 장소가 선택되면 호출되는 리스너
-        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
-            @SuppressLint("NotifyDataSetChanged")
-            override fun onPlaceSelected(place: Place) {
-                // 선택한 장소의 LatLng 좌표 가져오기
-                val latLng = place.latLng
-                if (latLng != null) {
-                    // 카메라를 선택한 위치로 이동시키고, 마커 추가
-                    googleMap?.moveCamera(newLatLngZoom(latLng, 15f))
-                    googleMap?.addMarker(MarkerOptions().position(latLng).title(place.name))
+    @SuppressLint("NotifyDataSetChanged")
+    private fun loadCityWeatherData() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val citiesWithWeather = cityDao.getCitiesWithWeather() // DB에서 데이터 가져오기
 
-                    // 선택한 도시 데이터를 로컬 DB에 저장
-                    val cityEntity = City(
-                        cityName = place.name ?: "Unknown",
-                        latitude = latLng.latitude,
-                        longitude = latLng.longitude
-                    )
-
-                    // 코루틴을 사용하여 비동기적으로 DB 작업 수행
-                    CoroutineScope(Dispatchers.IO).launch {
-                        cityDao.insertCity(cityEntity) // 도시 데이터를 DB에 저장
-
-                        // UI 업데이트를 위한 작업은 메인 스레드에서 수행해야 함
-                        withContext(Dispatchers.Main) {
-                            itemList.add(cityEntity) // UI 목록에 추가
-                            cityAdapter.notifyDataSetChanged() // 어댑터 업데이트
-                        }
-                    }
+                withContext(Dispatchers.Main) {
+                    // UI 업데이트
+                    cityWeatherList.clear() // 기존 데이터 초기화
+                    cityWeatherList.addAll(citiesWithWeather) // 새 데이터 추가
+                    cityAdapter.notifyDataSetChanged() // 어댑터에 변화 알림
                 }
-
-                // 지도 보이기, RecyclerView 숨기기
-                mapView.visibility = View.VISIBLE
-                recyclerView.visibility = View.GONE
+            } catch (e: Exception) {
+                Log.e("GMapFragment", "Error loading city and weather data: ${e.message}")
             }
-
-            override fun onError(status: com.google.android.gms.common.api.Status) {
-                Log.e("GMAP", "${status.statusMessage}")
-            }
-        })
+        }
     }
 
     // Google Map이 준비되었을 때 호출되는 콜백 메서드
@@ -142,6 +110,53 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
         googleMap?.addMarker(MarkerOptions().position(seoul).title("서울"))
         googleMap?.moveCamera(newLatLngZoom(seoul, 15f))
     }
+
+    // 장소 자동완성 설정 함수 (기존과 동일하게 유지)
+    private fun setupAutoComplete() {
+        // Places API 초기화
+        if (!Places.isInitialized()) {
+            Places.initialize(requireContext(), ApiKey.P_API_KEY)
+        }
+
+        val autocompleteFragment =
+            childFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
+
+        autocompleteFragment.setPlaceFields(
+            listOf(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG)
+        )
+
+        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            override fun onPlaceSelected(place: Place) {
+                val latLng = place.latLng
+                if (latLng != null) {
+                    googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+                    googleMap?.addMarker(MarkerOptions().position(latLng).title(place.name))
+
+                    // 선택된 도시를 로컬 DB에 저장
+                    val cityEntity = CityEntity(
+                        cityName = place.name ?: "Unknown",
+                        latitude = latLng.latitude,
+                        longitude = latLng.longitude
+                    )
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        cityDao.insertCity(cityEntity)
+
+                        // UI 업데이트는 메인 스레드에서 실행
+                        withContext(Dispatchers.Main) {
+                            // 새로운 데이터를 가져오고 UI 업데이트
+                            loadCityWeatherData()
+                        }
+                    }
+                }
+            }
+
+            override fun onError(status: com.google.android.gms.common.api.Status) {
+                Log.e("GMapFragment", "Error selecting place: ${status.statusMessage}")
+            }
+        })
+    }
+
 
     // Fragment 생명주기에 맞춰 MapView 관리
     override fun onStart() {

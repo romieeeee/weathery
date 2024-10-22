@@ -13,7 +13,8 @@ import com.example.weathery.R
 import com.example.weathery.adapter.ViewPagerAdapter
 import com.example.weathery.data.WeatherDataProcessor
 import com.example.weathery.database.AppDatabase
-import com.example.weathery.database.City
+import com.example.weathery.database.CityEntity
+import com.example.weathery.database.WeatherEntity
 import com.example.weathery.repository.WeatherRepository
 import com.example.weathery.utils.LocationManager
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator
@@ -21,8 +22,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 /**
@@ -49,7 +48,12 @@ class HomeFragment : Fragment() {
 
     private val cityDao by lazy { db.cityDao() } // CityDao 초기화
     private val weatherDao by lazy { db.weatherDao() } // WeatherDao 초기화
-    private val weatherRepository by lazy {  WeatherRepository(cityDao, weatherDao) }  // cityDao와 weatherDao를 전달
+    private val weatherRepository by lazy {
+        WeatherRepository(
+            cityDao,
+            weatherDao
+        )
+    }  // cityDao와 weatherDao를 전달
 
     private val weatherDataList = mutableListOf<WeatherDataProcessor>() // 날씨 데이터 리스트
     private val cityNames = mutableListOf<String>() // 도시 이름 리스트
@@ -90,11 +94,20 @@ class HomeFragment : Fragment() {
                     location?.let {
                         // 도시명 가져오기 및 저장
                         val cityName = getCityNameFromCoordinates(it.latitude, it.longitude)
-                        val cityEntity = City(cityName = cityName, latitude = it.latitude, longitude = it.longitude)
+                        val cityEntity = CityEntity(
+                            cityName = cityName,
+                            latitude = it.latitude,
+                            longitude = it.longitude
+                        )
 
                         CoroutineScope(Dispatchers.IO).launch {
-                            cityDao.insertCity(cityEntity) // DB에 도시 정보 저장
-                            fetchWeatherDataForCity(it.latitude, it.longitude) // 날씨 데이터 가져오기
+                            // 도시 데이터를 삽입하고, 자동 생성된 cityId를 가져옴
+                            val cityId = cityDao.insertCity(cityEntity) // 삽입 후 cityId 반환
+                            fetchWeatherDataForCity(
+                                it.latitude,
+                                it.longitude,
+                                cityId
+                            ) // 날씨 데이터 가져오기
                         }
                     }
                 },
@@ -108,9 +121,22 @@ class HomeFragment : Fragment() {
     }
 
     // 날씨 데이터 가져오는 함수 (비동기로 호출)
-    private suspend fun fetchWeatherDataForCity(lat: Double, lon: Double) {
+    private suspend fun fetchWeatherDataForCity(lat: Double, lon: Double, cityId: Long) {
         val weatherData = fetchWeatherForCity(lat, lon)
         weatherData?.let {
+            // 날씨 데이터 -> weather_table 에 저장
+            val weatherEntity = WeatherEntity(
+                cityId = cityId.toInt(),
+                temperature = it.getCurrentTemperature(),
+                weatherCondition = it.getSkyCondition(),
+                rainfall = it.getRainfall(),
+                windSpeed = it.getWindSpeed(),
+                humidity = it.getHumidity(),
+                timestamp = System.currentTimeMillis()
+            )
+            weatherDao.insertWeather(weatherEntity)
+
+            // 날씨 데이터를 리스트에 추가
             weatherDataList.add(it)
             cityNames.add(getCityNameFromCoordinates(lat, lon))
 
