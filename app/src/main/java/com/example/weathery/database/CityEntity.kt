@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
  */
 
 @Entity(tableName = "city_table")
-data class City(
+data class CityEntity(
     @PrimaryKey(autoGenerate = true) val cityId: Int = 0, // 도시 데이터의 고유 ID (자동생성)
     val cityName: String, // 도시 이름
     val latitude: Double, // 위도
