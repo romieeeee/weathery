@@ -2,7 +2,7 @@ package com.example.weathery.network
 
 import com.example.weathery.data.WeatherResponse
 //import com.example.weathery.utils.ApiKey.API_KEY
-import com.example.weathery.utils.ApiKey.Companion.API_KEY
+import com.example.weathery.utils.ApiKey.Companion.W_API_KEY
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -12,7 +12,7 @@ import retrofit2.http.Query
 interface WeatherApi {
     @GET("getUltraSrtFcst") // end point 설정
     suspend fun getWeatherData(
-        @Query("ServiceKey") apiKey: String = API_KEY,
+        @Query("ServiceKey") apiKey: String = W_API_KEY,
         @Query("pageNo") pageNo: Int,
         @Query("numOfRows") numOfRows: Int,
         @Query("dataType") dataType: String = "JSON", // 기본값을 JSON으로 설정
