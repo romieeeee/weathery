@@ -1,6 +1,7 @@
 [versions]
 agp = "8.6.0"
 converterGson = "2.9.0"
+debugDb = "1.0.7"
 dotsindicator = "5.0"
 drawerlayout = "1.2.0"
 kotlin = "1.9.0"
@@ -35,6 +36,8 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCommon" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCommon" }
 androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2" }
+debug-db = { module = "com.github.amitshekhariitbhu.Android-Debug-Database:debug-db", version.ref = "debugDb" }
+debug-db-encrypt = { module = "com.github.amitshekhariitbhu.Android-Debug-Database:debug-db-encrypt", version.ref = "debugDb" }
 dotsindicator = { module = "com.tbuonomo:dotsindicator", version.ref = "dotsindicator" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
