@@ -1,6 +1,5 @@
 package com.example.weathery.fragments
 
-import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -22,13 +21,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Locale
 
 /**
  * 메인 화면
  * - 사용자의 현재 위치 가져오기
  * - 위치를 토대로 도시명 가져오기
- *  - 날씨 api 호출하기?
+ * - 날씨 api 호출하기
  */
 class HomeFragment : Fragment() {
 
@@ -53,7 +51,7 @@ class HomeFragment : Fragment() {
             cityDao,
             weatherDao
         )
-    }  // cityDao와 weatherDao를 전달
+    }
 
     private val weatherDataList = mutableListOf<WeatherDataProcessor>() // 날씨 데이터 리스트
     private val cityNames = mutableListOf<String>() // 도시 이름 리스트
@@ -88,22 +86,25 @@ class HomeFragment : Fragment() {
      * 위치 권한 확인 후 마지막 위치 가져옴
      */
     private fun getCurrentLocationAndUpdateCities() {
+        Log.d("project-weathery", "getCurrentLocationAndUpdateCities() called")
         if (locationManager.checkLocationPermission()) {
+            Log.d("project-weathery", "checkLocationPermission")
             locationManager.getLastKnownLocation(
                 onSuccess = { location ->
                     location?.let {
-                        // 도시명 가져오기 및 저장
-                        val cityName = getCityNameFromCoordinates(it.latitude, it.longitude)
+                        val cityName = locationManager.getCityNameFromCoord(it.latitude, it.longitude)
                         val cityEntity = CityEntity(
                             cityName = cityName,
                             latitude = it.latitude,
                             longitude = it.longitude
                         )
+                        Log.d("project-weathery", "city info: ${cityEntity.latitude}, ${cityEntity.longitude}, ${cityEntity.cityName}")
 
                         CoroutineScope(Dispatchers.IO).launch {
                             // 도시 데이터를 삽입하고, 자동 생성된 cityId를 가져옴
                             val cityId = cityDao.insertCity(cityEntity) // 삽입 후 cityId 반환
                             fetchWeatherDataForCity(
+                                cityName,
                                 it.latitude,
                                 it.longitude,
                                 cityId
@@ -121,7 +122,8 @@ class HomeFragment : Fragment() {
     }
 
     // 날씨 데이터 가져오는 함수 (비동기로 호출)
-    private suspend fun fetchWeatherDataForCity(lat: Double, lon: Double, cityId: Long) {
+    private suspend fun fetchWeatherDataForCity(cityName:String, lat: Double, lon: Double, cityId: Long) {
+        Log.d("project-weathery", "fetchWeatherDataForCity() called")
         val weatherData = fetchWeatherForCity(lat, lon)
         weatherData?.let {
             // 날씨 데이터 -> weather_table 에 저장
@@ -135,10 +137,12 @@ class HomeFragment : Fragment() {
                 timestamp = System.currentTimeMillis()
             )
             weatherDao.insertWeather(weatherEntity)
+            Log.d("project-weathery", "${weatherEntity.cityId}, ${weatherEntity.temperature}," +
+                    " ${weatherEntity.weatherCondition}, ${weatherEntity.rainfall}, ${weatherEntity.windSpeed}, ${weatherEntity.humidity}, ${weatherEntity.timestamp}")
 
             // 날씨 데이터를 리스트에 추가
             weatherDataList.add(it)
-            cityNames.add(getCityNameFromCoordinates(lat, lon))
+            cityNames.add(cityName)
 
             // UI 작업은 Main 스레드에서 수행
             withContext(Dispatchers.Main) {
@@ -158,32 +162,4 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // 위도와 경도를 기반으로 도시명을 가져오는 함수
-    private fun getCityNameFromCoordinates(lat: Double, lon: Double): String {
-        val geocoder = Geocoder(requireContext(), Locale.KOREA)
-
-        return try {
-            val addresses = geocoder.getFromLocation(lat, lon, 1)
-            if (!addresses.isNullOrEmpty()) {
-                val address = addresses[0]
-
-                address?.let {
-                    if (it.locality.isNullOrEmpty()) {
-                        "${it.adminArea}\n${it.thoroughfare}"
-                    } else if (it.thoroughfare.isNullOrEmpty()) {
-                        "${it.adminArea}\n${it.locality}"
-                    } else {
-                        "${it.locality}\n${it.thoroughfare}"
-                    }
-//                    "${it.adminArea} ${it.locality} ${it.thoroughfare}" // 시 구 동 정보를 가져옴
-                } ?: "주소를 찾을 수 없음"
-
-            } else {
-                "알 수 없는 위치"
-            }
-        } catch (e: Exception) {
-            Log.e("Geocoder", "Failed to get city name: ${e.message}")
-            "알 수 없는 위치"
-        }
-    }
 }

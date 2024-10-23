@@ -7,7 +7,6 @@ import android.location.Geocoder
 import android.location.Location
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.location.LocationServices
@@ -48,7 +47,7 @@ class LocationManager(private val context: Context) {
     }
 
     // 좌표로 도시명 가져오는 함수
-    private fun getCityNameFromCoordinates(lat: Double, lon: Double): String {
+    fun getCityNameFromCoord(lat: Double, lon: Double): String {
         val geocoder = Geocoder(context, Locale.KOREA)
 
         return try {
