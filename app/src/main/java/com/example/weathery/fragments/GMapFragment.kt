@@ -10,12 +10,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 import com.example.weathery.R
 import com.example.weathery.adapter.CityAdapter
-import com.example.weathery.database.AppDatabase
 import com.example.weathery.database.CityEntity
 import com.example.weathery.database.CityWithWeather
+import com.example.weathery.database.DatabaseProvider
 import com.example.weathery.utils.ApiKey
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom
@@ -44,13 +43,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var mapView: MapView
     private var googleMap: GoogleMap? = null
 
-    // Room 데이터베이스 초기화 (DB 연결을 위한 객체)
-    private val db by lazy {
-        Room.databaseBuilder(
-            requireContext(),
-            AppDatabase::class.java, "weather_table"
-        ).build()
-    }
+    private val db by lazy { DatabaseProvider.getDatabase(requireContext()) }
 
     private val cityDao by lazy { db.cityDao() } // CityDao 초기화
 

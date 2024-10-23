@@ -6,13 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.room.Room
 import androidx.viewpager2.widget.ViewPager2
 import com.example.weathery.R
 import com.example.weathery.adapter.ViewPagerAdapter
 import com.example.weathery.data.WeatherDataProcessor
-import com.example.weathery.database.AppDatabase
 import com.example.weathery.database.CityEntity
+import com.example.weathery.database.DatabaseProvider
 import com.example.weathery.database.WeatherEntity
 import com.example.weathery.repository.WeatherRepository
 import com.example.weathery.utils.LocationManager
@@ -36,13 +35,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var locationManager: LocationManager
 
-    // Room 데이터베이스 초기화
-    private val db by lazy {
-        Room.databaseBuilder(
-            requireContext(),
-            AppDatabase::class.java, "weather_table"
-        ).build()
-    }
+    private val db by lazy { DatabaseProvider.getDatabase(requireContext()) }
 
     private val cityDao by lazy { db.cityDao() } // CityDao 초기화
     private val weatherDao by lazy { db.weatherDao() } // WeatherDao 초기화
@@ -101,14 +94,16 @@ class HomeFragment : Fragment() {
                         Log.d("project-weathery", "city info: ${cityEntity.latitude}, ${cityEntity.longitude}, ${cityEntity.cityName}")
 
                         CoroutineScope(Dispatchers.IO).launch {
-                            // 도시 데이터를 삽입하고, 자동 생성된 cityId를 가져옴
-                            val cityId = cityDao.insertCity(cityEntity) // 삽입 후 cityId 반환
-                            fetchWeatherDataForCity(
-                                cityName,
-                                it.latitude,
-                                it.longitude,
-                                cityId
-                            ) // 날씨 데이터 가져오기
+                            // 도시 데이터 삽입 전 동일 도시 존재 여부 확인
+                            val existingCity = cityDao.getCityByName(cityName)
+
+                            if (existingCity == null) { // 새로운 도시인 경우
+                                // 도시 데이터를 삽입하고, 자동 생성된 cityId를 가져옴
+                                val cityId = cityDao.insertCity(cityEntity) // 삽입 후 cityId 반환
+                                fetchWeatherDataForCity(cityName, it.latitude, it.longitude, cityId )
+                            } else{
+                                fetchWeatherDataForCity(cityName, it.latitude, it.longitude, existingCity.cityId.toLong())
+                            }
                         }
                     }
                 },
