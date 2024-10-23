@@ -1,6 +1,7 @@
 package com.example.weathery.adapter
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,9 +23,12 @@ class CityAdapter(
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: CityAdapter.CityViewHolder, position: Int) {
+
         val cityWithWeather = cityWeatherList[position]
         val city = cityWithWeather.city
         val weather = cityWithWeather.weather
+
+        Log.d("project-weathery", "onBindViewHolder 호출 ${cityWithWeather.weather?.cityId}")
 
         // 도시 이름 설정
         holder.nameTextView.text = city.cityName

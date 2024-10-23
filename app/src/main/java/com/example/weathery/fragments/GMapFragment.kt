@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import com.example.weathery.R
@@ -67,6 +68,8 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
         recyclerView = view.findViewById(R.id.city_recycler_view)
         cityWeatherList = mutableListOf() // 초기화된 리스트
 
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
         cityAdapter = CityAdapter(cityWeatherList)
         recyclerView.adapter = cityAdapter
 
@@ -80,11 +83,12 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
 
         // 장소 자동완성 기능도 추가 (기존 코드 유지)
         setupAutoComplete()
-
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun loadCityWeatherData() {
+        Log.d("project-weathery", "loadCityWeatherData() called")
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val citiesWithWeather = cityDao.getCitiesWithWeather() // DB에서 데이터 가져오기

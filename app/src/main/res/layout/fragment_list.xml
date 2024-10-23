@@ -8,8 +8,8 @@
     tools:context=".fragments.ListFragment">
 
     <ImageView
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:layout_gravity="start|center"
         android:layout_marginStart="30dp"
         android:src="@drawable/vector" />
@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:fontFamily="@font/pre_light"
-            android:text="최고:24℃   최저:20℃"
+            android:text="현재 기온: 20℃"
             android:textColor="@color/black"
             android:textSize="15sp" />
     </LinearLayout>
