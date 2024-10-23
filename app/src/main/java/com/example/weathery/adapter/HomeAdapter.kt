@@ -15,7 +15,7 @@ import java.util.Locale
  * - 각 도시별로 new fragment 생성
  * - API에서 받아온 날씨 데이터를 각 fragment로 전달
  */
-class ViewPagerAdapter(
+class HomeAdapter(
     fragmentActivity: FragmentActivity,
     private var weatherDataList: MutableList<WeatherDataProcessor> = mutableListOf(), // 날씨 데이터 리스트
     private var cityNames: List<String> // 도시 이름 리스트
