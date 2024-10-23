@@ -32,6 +32,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+private const val TAG = "main function"
+
 class GMapFragment : Fragment(), OnMapReadyCallback {
 
     // recyclerView
@@ -80,7 +82,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun loadCityWeatherData() {
-        Log.d("project-weathery", "loadCityWeatherData() called")
+        Log.d(TAG, "loadCityWeatherData() called")
 
         CoroutineScope(Dispatchers.IO).launch {
             try {

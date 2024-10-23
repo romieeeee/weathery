@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weathery.R
 import com.example.weathery.database.CityWithWeather
 
+private const val TAG = "main function"
+
 class CityAdapter(
     private val cityWeatherList: List<CityWithWeather> // 도시와 날씨 데이터를 받음
 ) : RecyclerView.Adapter<CityAdapter.CityViewHolder>() {
@@ -28,7 +30,7 @@ class CityAdapter(
         val city = cityWithWeather.city
         val weather = cityWithWeather.weather
 
-        Log.d("project-weathery", "onBindViewHolder 호출 ${cityWithWeather.weather?.cityId}")
+        Log.d(TAG, "onBindViewHolder 호출 ${cityWithWeather.weather?.cityId}")
 
         // 도시 이름 설정
         holder.nameTextView.text = city.cityName

@@ -21,6 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+private const val TAG = "main function"
+
 /**
  * 메인 화면
  * - 사용자의 현재 위치 가져오기
@@ -79,9 +81,9 @@ class HomeFragment : Fragment() {
      * 위치 권한 확인 후 마지막 위치 가져옴
      */
     private fun getCurrentLocationAndUpdateCities() {
-        Log.d("project-weathery", "getCurrentLocationAndUpdateCities() called")
+        Log.d("", "getCurrentLocationAndUpdateCities() called")
         if (locationManager.checkLocationPermission()) {
-            Log.d("project-weathery", "checkLocationPermission")
+            Log.d(TAG, "checkLocationPermission")
             locationManager.getLastKnownLocation(
                 onSuccess = { location ->
                     location?.let {
@@ -91,7 +93,7 @@ class HomeFragment : Fragment() {
                             latitude = it.latitude,
                             longitude = it.longitude
                         )
-                        Log.d("project-weathery", "city info: ${cityEntity.latitude}, ${cityEntity.longitude}, ${cityEntity.cityName}")
+                        Log.d(TAG, "city info: ${cityEntity.latitude}, ${cityEntity.longitude}, ${cityEntity.cityName}")
 
                         CoroutineScope(Dispatchers.IO).launch {
                             // 도시 데이터 삽입 전 동일 도시 존재 여부 확인
@@ -118,7 +120,7 @@ class HomeFragment : Fragment() {
 
     // 날씨 데이터 가져오는 함수 (비동기로 호출)
     private suspend fun fetchWeatherDataForCity(cityName:String, lat: Double, lon: Double, cityId: Long) {
-        Log.d("project-weathery", "fetchWeatherDataForCity() called")
+        Log.d(TAG, "fetchWeatherDataForCity() called")
         val weatherData = fetchWeatherForCity(lat, lon)
         weatherData?.let {
             // 날씨 데이터 -> weather_table 에 저장
@@ -132,7 +134,7 @@ class HomeFragment : Fragment() {
                 timestamp = System.currentTimeMillis()
             )
             weatherDao.insertWeather(weatherEntity)
-            Log.d("project-weathery", "${weatherEntity.cityId}, ${weatherEntity.temperature}," +
+            Log.d(TAG, "${weatherEntity.cityId}, ${weatherEntity.temperature}," +
                     " ${weatherEntity.weatherCondition}, ${weatherEntity.rainfall}, ${weatherEntity.windSpeed}, ${weatherEntity.humidity}, ${weatherEntity.timestamp}")
 
             // 날씨 데이터를 리스트에 추가

@@ -56,11 +56,11 @@ class LocationManager(private val context: Context) {
                 val address = addresses[0]
                 address?.let {
                     if (it.locality.isNullOrEmpty()) {
-                        "${it.adminArea}\n${it.thoroughfare}"
+                        "${it.adminArea} ${it.thoroughfare}"
                     } else if (it.thoroughfare.isNullOrEmpty()) {
-                        "${it.adminArea}\n${it.locality}"
+                        "${it.adminArea} ${it.locality}"
                     } else {
-                        "${it.locality}\n${it.thoroughfare}"
+                        "${it.locality} ${it.thoroughfare}"
                     }
                 } ?: "주소를 찾을 수 없음"
 

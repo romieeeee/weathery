@@ -78,7 +78,7 @@ class WeatherFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     private fun setWeatherData() {
         arguments?.let {
-            tvLocation.text = it.getString("CITY_NAME") ?: "알 수 없는 위치"
+            tvLocation.text = it.getString("CITY_NAME")?.replace(" ", "\n") ?: "알 수 없는 위치"
             tvTodayDate.text = it.getString("DATE") ?: "날짜 없음"
             tvNowTemp.text = it.getString("TEMPERATURE") ?: "정보 없음"
             tvNowWeather.text = it.getString("SKY_CONDITION") ?: "정보 없음"
