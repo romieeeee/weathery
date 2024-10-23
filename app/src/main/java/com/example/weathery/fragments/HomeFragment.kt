@@ -8,13 +8,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.example.weathery.R
-import com.example.weathery.adapter.ViewPagerAdapter
+import com.example.weathery.adapter.HomeAdapter
 import com.example.weathery.data.WeatherDataProcessor
-import com.example.weathery.database.CityEntity
 import com.example.weathery.database.DatabaseProvider
-import com.example.weathery.database.WeatherEntity
 import com.example.weathery.repository.WeatherRepository
 import com.example.weathery.utils.LocationManager
+import com.example.weathery.utils.WeatheryManager
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,9 +32,10 @@ class HomeFragment : Fragment() {
 
     private lateinit var dotsIndicator: DotsIndicator
     private lateinit var viewPager: ViewPager2
-    private lateinit var adapter: ViewPagerAdapter
+    private lateinit var adapter: HomeAdapter
 
     private lateinit var locationManager: LocationManager
+    private lateinit var weatheryManager: WeatheryManager
 
     private val db by lazy { DatabaseProvider.getDatabase(requireContext()) }
 
@@ -65,12 +65,14 @@ class HomeFragment : Fragment() {
         viewPager = view.findViewById(R.id.viewPager)
 
         // 어댑터 초기화
-        adapter = ViewPagerAdapter(requireActivity(), mutableListOf(), cityNames)
+        adapter = HomeAdapter(requireActivity(), mutableListOf(), cityNames)
         viewPager.adapter = adapter
 
         // indicator를 viewpager와 연결
         dotsIndicator = view.findViewById(R.id.dots_indicator)
         dotsIndicator.attachTo(viewPager)
+
+        weatheryManager = WeatheryManager(cityDao, weatherDao, weatherRepository)
 
         // 현재 위치를 가져와서 cities에 추가
         getCurrentLocationAndUpdateCities()
@@ -81,82 +83,35 @@ class HomeFragment : Fragment() {
      * 위치 권한 확인 후 마지막 위치 가져옴
      */
     private fun getCurrentLocationAndUpdateCities() {
-        Log.d("", "getCurrentLocationAndUpdateCities() called")
         if (locationManager.checkLocationPermission()) {
-            Log.d(TAG, "checkLocationPermission")
             locationManager.getLastKnownLocation(
                 onSuccess = { location ->
                     location?.let {
-                        val cityName = locationManager.getCityNameFromCoord(it.latitude, it.longitude)
-                        val cityEntity = CityEntity(
-                            cityName = cityName,
-                            latitude = it.latitude,
-                            longitude = it.longitude
-                        )
-                        Log.d(TAG, "city info: ${cityEntity.latitude}, ${cityEntity.longitude}, ${cityEntity.cityName}")
-
                         CoroutineScope(Dispatchers.IO).launch {
-                            // 도시 데이터 삽입 전 동일 도시 존재 여부 확인
-                            val existingCity = cityDao.getCityByName(cityName)
+                            // 도시명 가져오기
+                            val cityName = locationManager.getCityNameFromCoord(it.latitude, it.longitude)
 
-                            if (existingCity == null) { // 새로운 도시인 경우
-                                // 도시 데이터를 삽입하고, 자동 생성된 cityId를 가져옴
-                                val cityId = cityDao.insertCity(cityEntity) // 삽입 후 cityId 반환
-                                fetchWeatherDataForCity(cityName, it.latitude, it.longitude, cityId )
-                            } else{
-                                fetchWeatherDataForCity(cityName, it.latitude, it.longitude, existingCity.cityId.toLong())
+                            // 도시 정보 저장 (cityId 반환)
+                            val cityId = weatheryManager.saveCity(cityName, it.latitude, it.longitude)
+
+                            // 날씨 데이터 가져오기
+                            val weatherData = weatheryManager.fetchWeatherData(cityId, it.latitude, it.longitude)
+
+                            weatherData?.let { data ->
+                                weatherDataList.add(data)
+                                cityNames.add(cityName)
+
+                                withContext(Dispatchers.Main) {
+                                    adapter.updateData(weatherDataList, cityNames)
+                                }
                             }
                         }
                     }
                 },
-                onFailure = { exception ->
-                    Log.e("Location", "위치 가져오기 실패: ${exception.message}")
-                }
+                onFailure = { exception -> Log.e("Location", "위치 가져오기 실패: ${exception.message}") }
             )
         } else {
             Log.d("Location", "위치 권한이 거부되었습니다.")
         }
     }
-
-    // 날씨 데이터 가져오는 함수 (비동기로 호출)
-    private suspend fun fetchWeatherDataForCity(cityName:String, lat: Double, lon: Double, cityId: Long) {
-        Log.d(TAG, "fetchWeatherDataForCity() called")
-        val weatherData = fetchWeatherForCity(lat, lon)
-        weatherData?.let {
-            // 날씨 데이터 -> weather_table 에 저장
-            val weatherEntity = WeatherEntity(
-                cityId = cityId.toInt(),
-                temperature = it.getCurrentTemperature(),
-                weatherCondition = it.getSkyCondition(),
-                rainfall = it.getRainfall(),
-                windSpeed = it.getWindSpeed(),
-                humidity = it.getHumidity(),
-                timestamp = System.currentTimeMillis()
-            )
-            weatherDao.insertWeather(weatherEntity)
-            Log.d(TAG, "${weatherEntity.cityId}, ${weatherEntity.temperature}," +
-                    " ${weatherEntity.weatherCondition}, ${weatherEntity.rainfall}, ${weatherEntity.windSpeed}, ${weatherEntity.humidity}, ${weatherEntity.timestamp}")
-
-            // 날씨 데이터를 리스트에 추가
-            weatherDataList.add(it)
-            cityNames.add(cityName)
-
-            // UI 작업은 Main 스레드에서 수행
-            withContext(Dispatchers.Main) {
-                adapter.updateData(weatherDataList, cityNames) // 어댑터 업데이트
-            }
-        }
-    }
-
-    private suspend fun fetchWeatherForCity(lat: Double, lon: Double): WeatherDataProcessor? {
-        return try {
-            // API에서 WeatherResponse 데이터를 가져옴
-            val weatherResponse = weatherRepository.fetchWeatherResponseForCity(lat, lon)
-            weatherResponse?.let { WeatherDataProcessor(it) } // WeatherResponse를 WeatherDataProcessor로 전달
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
-
 }
