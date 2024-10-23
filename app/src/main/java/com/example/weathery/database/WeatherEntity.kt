@@ -10,14 +10,15 @@ import androidx.room.PrimaryKey
  */
 
 @Entity(
-    tableName = "weather_table",
+    tableName = "weather",
     foreignKeys = [ForeignKey(
         entity = CityEntity::class,  // City 클래스 참조
         parentColumns = ["cityId"],  // 부모 테이블의 cityId 참조
         childColumns = ["cityId"],
         onDelete = ForeignKey.CASCADE // 부모 삭제 시 자식도 삭제
     )],
-    indices = [Index(value = ["cityId"])] // cityId에 인덱스 추가
+    // cityId를 기준으로 유일성 유지 -> 중복 시 업데이트하도록 설정
+    indices = [Index(value = ["cityId"], unique = true)]
 )
 data class WeatherEntity(
     @PrimaryKey(autoGenerate = true) val weatherId: Int = 0, // 날씨 데이터의 고유 ID
