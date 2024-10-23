@@ -13,20 +13,20 @@ import androidx.room.Transaction
 
 @Dao
 interface CityDao {
-    // 도시 데이터 삽입
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    // 도시 데이터 삽입 (중복된 cityName이 있으면 무시)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertCity(cityEntity: CityEntity): Long
 
     // 특정 도시 데이터 가져오기
-    @Query("SELECT * FROM city_table WHERE cityName = :cityName LIMIT 1")
-    suspend fun getCity(cityName: String): CityEntity?
+    @Query("SELECT * FROM city WHERE cityName = :cityName LIMIT 1")
+    suspend fun getCityByName(cityName: String): CityEntity?
 
     // 모든 도시 데이터 가져오기
-    @Query("SELECT * FROM city_table")
+    @Query("SELECT * FROM city")
     suspend fun getAllCities(): List<CityEntity>
 
     // 도시와 날씨 정보를 cityId로 조인하여 가져옴
     @Transaction
-    @Query("SELECT * FROM city_table")
+    @Query("SELECT * FROM city")
     suspend fun getCitiesWithWeather(): List<CityWithWeather>
 }

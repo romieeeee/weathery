@@ -12,9 +12,11 @@ import androidx.room.Query
 
 @Dao
 interface WeatherDao {
+    // 날씨 데이터 삽입 (cityId 중복 시 업데이트)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWeather(weatherEntity: WeatherEntity)
 
-    @Query("SELECT * FROM weather_table WHERE cityId = :cityId ORDER BY timestamp DESC LIMIT 1")
+    // 도시 ID로 날씨 데이터를 가져옴
+    @Query("SELECT * FROM weather WHERE cityId = :cityId ORDER BY timestamp DESC LIMIT 1")
     suspend fun getLatestWeatherByCityId(cityId: Int): WeatherEntity?
 }
