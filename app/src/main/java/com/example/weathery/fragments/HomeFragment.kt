@@ -9,8 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.example.weathery.R
 import com.example.weathery.adapter.HomeAdapter
-import com.example.weathery.data.WeatherDataProcessor
 import com.example.weathery.database.DatabaseProvider
+import com.example.weathery.database.WeatherEntity
 import com.example.weathery.repository.WeatherRepository
 import com.example.weathery.utils.LocationManager
 import com.example.weathery.utils.WeatheryManager
@@ -48,7 +48,7 @@ class HomeFragment : Fragment() {
         )
     }
 
-    private val weatherDataList = mutableListOf<WeatherDataProcessor>() // 날씨 데이터 리스트
+    private val weatherDataList = mutableListOf<WeatherEntity>() // 날씨 데이터 리스트
     private val cityNames = mutableListOf<String>() // 도시 이름 리스트
 
     override fun onCreateView(
@@ -74,44 +74,57 @@ class HomeFragment : Fragment() {
 
         weatheryManager = WeatheryManager(cityDao, weatherDao, weatherRepository)
 
-        // 현재 위치를 가져와서 cities에 추가
-        getCurrentLocationAndUpdateCities()
+        // 위치 정보를 가져오고 그 이후 날씨 데이터를 가져오는 함수 호출
+        getCurrentLocation()
     }
 
     /**
-     * 마지막 위치를 가져와 DB에 업데이트 하는 함수
-     * 위치 권한 확인 후 마지막 위치 가져옴
+     * 현재 위치를 가져오는 함수
+     * 위치를 성공적으로 가져오면, fetchWeather을 호출하여 날씨 데이터 업데이트
      */
-    private fun getCurrentLocationAndUpdateCities() {
+    private fun getCurrentLocation() {
         if (locationManager.checkLocationPermission()) {
             locationManager.getLastKnownLocation(
                 onSuccess = { location ->
                     location?.let {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            // 도시명 가져오기
-                            val cityName = locationManager.getCityNameFromCoord(it.latitude, it.longitude)
-
-                            // 도시 정보 저장 (cityId 반환)
-                            val cityId = weatheryManager.saveCity(cityName, it.latitude, it.longitude)
-
-                            // 날씨 데이터 가져오기
-                            val weatherData = weatheryManager.fetchWeatherData(cityId, it.latitude, it.longitude)
-
-                            weatherData?.let { data ->
-                                weatherDataList.add(data)
-                                cityNames.add(cityName)
-
-                                withContext(Dispatchers.Main) {
-                                    adapter.updateData(weatherDataList, cityNames)
-                                }
-                            }
-                        }
+                        // 위치 정보를 가져온 후 날씨 데이터 요청 함수 호출
+                        fetchWeather(it.latitude, it.longitude)
                     }
                 },
                 onFailure = { exception -> Log.e("Location", "위치 가져오기 실패: ${exception.message}") }
             )
         } else {
             Log.d("Location", "위치 권한이 거부되었습니다.")
+        }
+    }
+
+    /**
+     * 주어진 위도와 경도를 기반으로 날씨 데이터를 가져오고 UI 업데이트
+     */
+    private fun fetchWeather(latitude: Double, longitude: Double) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // 도시명 가져오기
+                val cityName = locationManager.getCityNameFromCoord(latitude, longitude)
+
+                // 도시 정보 저장 (cityId 반환)
+                val cityId = weatheryManager.saveCity(cityName, latitude, longitude)
+
+                // 날씨 데이터 가져오기
+                val weatherData = weatheryManager.fetchWeatherData(cityId, latitude, longitude)
+
+                weatherData?.let { data ->
+                    weatherDataList.add(data)
+                    cityNames.add(cityName)
+
+                    // UI 업데이트
+                    withContext(Dispatchers.Main) {
+                        adapter.updateData(weatherDataList, cityNames)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error fetching weather data: ${e.message}")
+            }
         }
     }
 }
