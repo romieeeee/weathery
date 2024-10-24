@@ -8,23 +8,23 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weathery.R
-import com.example.weathery.data.WeatherDataProcessor
+import com.example.weathery.database.WeatherEntity
 
 private const val TAG = "main function"
 
-class CityAdapter(
-    private var weatherDataList: MutableList<WeatherDataProcessor> = mutableListOf(), // 날씨 데이터 리스트
+class GMapAdapter(
+    private var weatherDataList: MutableList<WeatherEntity> = mutableListOf(), // WeatherEntity 리스트
     private var cityNames: List<String> // 도시 이름 리스트
-) : RecyclerView.Adapter<CityAdapter.CityViewHolder>() {
+) : RecyclerView.Adapter<GMapAdapter.CityViewHolder>() {
 
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CityAdapter.CityViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GMapAdapter.CityViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.fragment_list, parent, false)
         return CityViewHolder(view)
     }
 
     @SuppressLint("SetTextI18n")
-    override fun onBindViewHolder(holder: CityAdapter.CityViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: GMapAdapter.CityViewHolder, position: Int) {
 
         val weatherData = weatherDataList[position]
         val cityName = cityNames[position] // 도시 이름을 리스트에서 가져옴
@@ -32,17 +32,19 @@ class CityAdapter(
         // 도시 이름 설정
         holder.nameTextView.text = cityName
 
+        // 날씨 정보가 없으면 기본 메시지 설정
+        if (weatherData.temperature == null) {
+            holder.tempTextView.text = "날씨 정보를 불러올 수 없습니다."
+//            holder.weatherImageView.setImageResource(R.drawable.default_weather_icon) // 기본 아이콘
+        }
+
         // 날씨 데이터가 있는 경우에만 날씨 정보를 표시
-        holder.tempTextView.text = "현재 기온: ${weatherData.getCurrentTemperature() ?: "온도 없음"}℃"
+        holder.tempTextView.text = "현재 기온: ${weatherData.temperature ?: "온도 없음"}℃"
 
         // 날씨 아이콘 설정 - 아이콘 리소스는 필요에 따라 설정
 //        holder.weatherImageView.setImageResource(getWeatherIcon(weatherData.getSkyCondition() ?: "default"))
 
-        // 날씨 정보가 없으면 기본 메시지 설정
-        if (weatherData.getCurrentTemperature() == null) {
-            holder.tempTextView.text = "날씨 정보를 불러올 수 없습니다."
-//            holder.weatherImageView.setImageResource(R.drawable.default_weather_icon) // 기본 아이콘
-        }
+
     }
 
     override fun getItemCount(): Int {
@@ -68,7 +70,7 @@ class CityAdapter(
 
     // 어댑터 데이터 갱신
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(newDataList: List<WeatherDataProcessor>, newCityNames: List<String>) {
+    fun updateData(newDataList: List<WeatherEntity>, newCityNames: List<String>) {
         this.weatherDataList = newDataList.toMutableList()
         this.cityNames = newCityNames
         notifyDataSetChanged() // 데이터가 변경되었음을 알림
