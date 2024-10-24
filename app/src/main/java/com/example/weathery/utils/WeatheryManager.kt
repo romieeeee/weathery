@@ -39,7 +39,7 @@ class WeatheryManager(
     }
 
     // 날씨 데이터를 가져오고 저장
-    suspend fun fetchWeatherData(cityId: Long, lat: Double, lon: Double): WeatherDataProcessor? {
+    suspend fun fetchWeatherData(cityId: Long, lat: Double, lon: Double): WeatherEntity? {
         return try {
             // API 호출
             val weatherResponse = weatherRepository.fetchWeatherResponseForCity(lat, lon)
@@ -59,7 +59,7 @@ class WeatheryManager(
                 weatherDao.insertWeather(weatherEntity)
                 Log.d(TAG, "Weather saved for cityId: $cityId")
 
-                return weatherDataProcessor
+                return weatherEntity
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error fetching weather data", e)
