@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.weathery.MainActivity
 import com.example.weathery.R
 import com.example.weathery.adapter.GMapAdapter
 import com.example.weathery.database.DatabaseProvider
@@ -73,16 +74,17 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val mainActivity = activity as MainActivity
 
         // init
         recyclerView = view.findViewById(R.id.city_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        weatherDataList = mutableListOf()
-        cityNames = mutableListOf()
-        cityAdapter = GMapAdapter(weatherDataList, cityNames)
+        weatherDataList = mainActivity.weatherDataList
+        cityNames = mainActivity.cityNames
 
         recyclerView.adapter = cityAdapter
+        cityAdapter = GMapAdapter(weatherDataList, cityNames)
 
         locationManager = LocationManager(requireContext())
         weatheryManager = WeatheryManager(cityDao, weatherDao, weatherRepository)
@@ -231,6 +233,12 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
                 }
                 .show()
         }
+    }
+
+    // MainActivity에서 호출하여 데이터를 업데이트하는 함수
+    fun updateList() {
+        val mainActivity = activity as MainActivity
+        cityAdapter.updateData(mainActivity.weatherDataList, mainActivity.cityNames)
     }
 
     // Fragment 생명주기에 맞춰 MapView 관리
