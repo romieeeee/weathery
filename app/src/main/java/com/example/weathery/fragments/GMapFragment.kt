@@ -208,6 +208,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
                 .setMessage("${cityName}을(를) 추가하시겠습니까?")
                 .setPositiveButton("네") { dialog, _ ->
                     saveSelectedCity()
+                    toggleViews()
                     dialog.dismiss()
                 }
                 .setNegativeButton("아니요") { dialog, _ ->
