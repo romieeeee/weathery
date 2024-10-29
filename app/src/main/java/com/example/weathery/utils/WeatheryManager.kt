@@ -8,7 +8,7 @@ import com.example.weathery.database.WeatherDao
 import com.example.weathery.database.WeatherEntity
 import com.example.weathery.repository.WeatherRepository
 
-private const val TAG = "main function"
+private const val TAG = "weathery-debug"
 
 class WeatheryManager(
     private val cityDao: CityDao,
@@ -30,10 +30,10 @@ class WeatheryManager(
             )
             // 도시 데이터 삽입
             val cityId = cityDao.insertCity(newCity) // 삽입 후 cityId 반환
-            Log.d(TAG, "New city saved: $cityName")
+            Log.d(TAG, "saveCity :: new city saved = $cityName")
             cityId
         } else {
-            Log.d(TAG, "City already exists: $cityName")
+            Log.d(TAG, "saveCity :: city already exists = $cityName")
             existingCity.cityId.toLong()
         }
     }
@@ -57,12 +57,12 @@ class WeatheryManager(
                     timestamp = System.currentTimeMillis()
                 )
                 weatherDao.insertWeather(weatherEntity)
-                Log.d(TAG, "Weather saved for cityId: $cityId")
+                Log.d(TAG, "fetchWeatherData :: weather saved(cityId = $cityId")
 
                 return weatherEntity
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error fetching weather data", e)
+            Log.e(TAG, "fetchWeatherData :: Error fetching weather data", e)
             null
         }
     }
