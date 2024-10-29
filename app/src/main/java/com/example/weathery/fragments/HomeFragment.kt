@@ -17,7 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private const val TAG = "weathery-debug"
+private const val TAG = "HomeFragment"
 
 /**
  * 메인 화면
@@ -73,7 +73,7 @@ class HomeFragment : Fragment() {
                     cityNames.add(city.cityName)
                 }
             }
-            Log.d(TAG, "loadWeatherData :: cityNames = {$cityNames}")
+            Log.d(TAG, "loadWeatherData :: cityNames = $cityNames")
 
             // UI 업데이트
             withContext(Dispatchers.Main) {

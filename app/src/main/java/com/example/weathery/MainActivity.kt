@@ -22,7 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private const val TAG = "weathery-debug"
+private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 

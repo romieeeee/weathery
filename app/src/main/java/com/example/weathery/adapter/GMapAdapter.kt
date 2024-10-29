@@ -10,8 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.weathery.R
 import com.example.weathery.database.WeatherEntity
 
-private const val TAG = "main function"
-
 class GMapAdapter(
     private var weatherDataList: MutableList<WeatherEntity> = mutableListOf(), // WeatherEntity 리스트
     private var cityNames: List<String> // 도시 이름 리스트

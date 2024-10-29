@@ -8,7 +8,7 @@ import com.example.weathery.database.WeatherDao
 import com.example.weathery.database.WeatherEntity
 import com.example.weathery.repository.WeatherRepository
 
-private const val TAG = "weathery-debug"
+private const val TAG = "WeatheryManager"
 
 class WeatheryManager(
     private val cityDao: CityDao,

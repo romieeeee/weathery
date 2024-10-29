@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private const val TAG = "weathery-debug"
+private const val TAG = "HomeAdapter"
 
 /**
  * ViewPager2를 위한 어댑터

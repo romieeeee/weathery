@@ -34,7 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private const val TAG = "weathery-debug"
+private const val TAG = "GMapFragment"
 
 class GMapFragment : Fragment(), OnMapReadyCallback {
 
@@ -141,7 +141,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
                     cityNames.add(city.cityName)
                 }
             }
-            Log.d(TAG, "loadWeatherData :: cityNames = {$cityNames}")
+            Log.d(TAG, "loadWeatherData :: cityNames = $cityNames")
 
             // UI 업데이트
             withContext(Dispatchers.Main) {
