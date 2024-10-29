@@ -5,24 +5,24 @@ import android.util.Log
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.weathery.database.DatabaseProvider
 import com.example.weathery.database.WeatherEntity
-import com.example.weathery.fragments.GMapFragment
 import com.example.weathery.fragments.HomeFragment
 import com.example.weathery.repository.WeatherRepository
 import com.example.weathery.utils.LocationManager
 import com.example.weathery.utils.WeatheryManager
 import com.google.android.material.navigation.NavigationView
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+private const val TAG = "weathery-debug"
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,7 +33,6 @@ class MainActivity : AppCompatActivity() {
     private val weatherRepository by lazy { WeatherRepository(cityDao, weatherDao) }
 
     val weatherDataList = mutableListOf<WeatherEntity>() // 날씨 데이터 리스트
-    val cityNames = mutableListOf<String>() // 도시 이름 리스트
 
     private lateinit var weatheryManager: WeatheryManager
     private lateinit var locationManager: LocationManager
@@ -76,54 +75,51 @@ class MainActivity : AppCompatActivity() {
         // NavigationView와 NavController 연결
         navView.setupWithNavController(navController)
 
-        // LocationManager 초기화
+        // Manager 초기화
         locationManager = LocationManager(this)
         weatheryManager = WeatheryManager(cityDao, weatherDao, weatherRepository)
 
         // 위치 권한 확인 및 날씨 데이터 초기화
         if (weatherDataList.isEmpty()) {
-            getCurrentLocationAndWeather()
+            setDefault()
         }
     }
 
-    // 위치와 날씨 데이터 가져오기
-    private fun getCurrentLocationAndWeather() {
-        if (locationManager.checkLocationPermission()) {
-            locationManager.getLastKnownLocation(
-                onSuccess = { location ->
-                    location?.let {
-                        fetchWeather(it.latitude, it.longitude)
-                    }
-                },
-                onFailure = { Log.e("Location", "위치 가져오기 실패") }
-            )
-        }
+    // 현재 위치와 날씨 데이터 가져오기
+    private fun setDefault() {
+        Log.d(TAG, "setDefault :: called")
+        locationManager.getLastKnownLocation(
+            onSuccess = { location ->
+                location?.let { getWeather(it.latitude, it.longitude) }
+            },
+            onFailure = { Log.e(TAG, "위치 가져오기 실패") }
+        )
     }
 
-    private fun fetchWeather(latitude: Double, longitude: Double) {
-        CoroutineScope(Dispatchers.IO).launch {
+    // 현재 위치의 날씨 데이터를 가져오고 DB에 저장
+    private fun getWeather(latitude: Double, longitude: Double) {
+        Log.d(TAG, "getWeather :: called")
+
+        lifecycleScope.launch(Dispatchers.IO) {
             val cityName = locationManager.getCityNameFromCoord(latitude, longitude)
             val cityId = weatheryManager.saveCity(cityName, latitude, longitude)
             val weatherData = weatheryManager.fetchWeatherData(cityId, latitude, longitude)
             weatherData?.let { data ->
-                weatherDataList.add(data)
-                cityNames.add(cityName)
-
-                // Notify fragments to update UI
                 withContext(Dispatchers.Main) {
-                    updateFragments()
+                    notifyWeatherDataUpdated()
                 }
             }
+            Log.d(TAG, "getWeather :: cityName = $cityName, weatherData = ($weatherData)")
         }
     }
 
-    // 두 Fragment에서 데이터를 업데이트하도록 호출하는 메서드
-    private fun updateFragments() {
+    // 데이터를 업데이트하라고 알리는 메서드
+    private fun notifyWeatherDataUpdated() {
+        Log.d(TAG, "notifyWeatherDataUpdated :: called")
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
         navHostFragment?.childFragmentManager?.fragments?.forEach { fragment ->
-            when (fragment) {
-                is HomeFragment -> fragment.updateViewPager()
-                is GMapFragment -> fragment.updateList()
+            if (fragment is HomeFragment) {
+                fragment.loadWeatherData() // 데이터 새로 고침
             }
         }
     }

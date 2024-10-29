@@ -1,21 +1,23 @@
 package com.example.weathery.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
-import com.example.weathery.MainActivity
 import com.example.weathery.R
 import com.example.weathery.adapter.HomeAdapter
 import com.example.weathery.database.DatabaseProvider
-import com.example.weathery.repository.WeatherRepository
-import com.example.weathery.utils.LocationManager
-import com.example.weathery.utils.WeatheryManager
+import com.example.weathery.database.WeatherEntity
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-private const val TAG = "main function"
+private const val TAG = "weathery-debug"
 
 /**
  * 메인 화면
@@ -29,19 +31,9 @@ class HomeFragment : Fragment() {
     private lateinit var viewPager: ViewPager2
     private lateinit var adapter: HomeAdapter
 
-    private lateinit var locationManager: LocationManager
-    private lateinit var weatheryManager: WeatheryManager
-
     private val db by lazy { DatabaseProvider.getDatabase(requireContext()) }
-
     private val cityDao by lazy { db.cityDao() } // CityDao 초기화
     private val weatherDao by lazy { db.weatherDao() } // WeatherDao 초기화
-    private val weatherRepository by lazy {
-        WeatherRepository(
-            cityDao,
-            weatherDao
-        )
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,28 +44,41 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val mainActivity = activity as MainActivity
-
-        locationManager = LocationManager(requireContext())
-        weatheryManager = WeatheryManager(cityDao, weatherDao, weatherRepository)
 
         viewPager = view.findViewById(R.id.viewPager)
+        dotsIndicator = view.findViewById(R.id.dots_indicator)
 
-        // 어댑터 초기화
-        adapter = HomeAdapter(requireActivity(), mainActivity.weatherDataList, mainActivity.cityNames)
+        // 빈 데이터로 초기화하고, 데이터를 동적으로 로드
+        adapter = HomeAdapter(requireActivity(), mutableListOf(), listOf())
         viewPager.adapter = adapter
 
-        // indicator를 viewpager와 연결
-        dotsIndicator = view.findViewById(R.id.dots_indicator)
         dotsIndicator.attachTo(viewPager)
 
-        // 초기 데이터 설정
-        adapter.updateData(mainActivity.weatherDataList, mainActivity.cityNames)
+        // 데이터 로드하여 ViewPager 업데이트
+        loadWeatherData()
     }
 
-    // MainActivity에서 호출하여 데이터를 업데이트하는 함수
-    fun updateViewPager() {
-        val mainActivity = activity as MainActivity
-        adapter.updateData(mainActivity.weatherDataList, mainActivity.cityNames)
+    // db 조회해서 데이터 가져오기
+    fun loadWeatherData() {
+        Log.d(TAG, "loadWeatherData :: called")
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val cities = cityDao.getAllCities()
+            val weatherDataList = mutableListOf<WeatherEntity>()
+            val cityNames = mutableListOf<String>()
+
+            for (city in cities) {
+                val weatherData = weatherDao.getLatestWeatherByCityId(city.cityId)
+                if (weatherData != null) {
+                    weatherDataList.add(weatherData)
+                    cityNames.add(city.cityName)
+                }
+            }
+            Log.d(TAG, "loadWeatherData :: cityNames = {$cityNames}")
+
+            // UI 업데이트
+            withContext(Dispatchers.Main) {
+                adapter.updateData(weatherDataList, cityNames)
+            }
+        }
     }
 }

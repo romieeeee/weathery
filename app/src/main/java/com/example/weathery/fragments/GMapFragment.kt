@@ -9,9 +9,9 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weathery.MainActivity
 import com.example.weathery.R
 import com.example.weathery.adapter.GMapAdapter
 import com.example.weathery.database.DatabaseProvider
@@ -30,20 +30,17 @@ import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private const val TAG = "main function"
+private const val TAG = "weathery-debug"
 
 class GMapFragment : Fragment(), OnMapReadyCallback {
 
     // recyclerView
     private lateinit var recyclerView: RecyclerView
-    private lateinit var cityAdapter: GMapAdapter
-    private var weatherDataList: MutableList<WeatherEntity> = mutableListOf()
-    private var cityNames: MutableList<String> = mutableListOf()
+    private lateinit var adapter: GMapAdapter
 
     private lateinit var locationManager: LocationManager
     private lateinit var weatheryManager: WeatheryManager
@@ -74,17 +71,13 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val mainActivity = activity as MainActivity
 
         // init
         recyclerView = view.findViewById(R.id.city_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        weatherDataList = mainActivity.weatherDataList
-        cityNames = mainActivity.cityNames
-
-        recyclerView.adapter = cityAdapter
-        cityAdapter = GMapAdapter(weatherDataList, cityNames)
+        adapter = GMapAdapter(mutableListOf(), listOf())
+        recyclerView.adapter = adapter
 
         locationManager = LocationManager(requireContext())
         weatheryManager = WeatheryManager(cityDao, weatherDao, weatherRepository)
@@ -116,54 +109,43 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
 
     // 선택된 도시를 로컬 DB에 저장하고 날씨 데이터를 가져와 저장
     @SuppressLint("NotifyDataSetChanged")
-    private fun saveCity() {
+    private fun saveSelectedCity() {
+        Log.d(TAG, "saveSelectedCity :: called")
         selectedLatLng?.let { latLng ->
             selectedCityName?.let { cityName ->
-                CoroutineScope(Dispatchers.IO).launch {
-                    // 도시 정보 저장 (cityId 반환)
+                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    // 도시 정보 저장 및 cityId 반환
                     val cityId = weatheryManager.saveCity(cityName, latLng.latitude, latLng.longitude)
 
-                    // 날씨 데이터 가져오기
-                    val weatherData = weatheryManager.fetchWeatherData(cityId, latLng.latitude, latLng.longitude)
-                    weatherData?.let { data ->
-                        // UI 업데이트
-                        weatherDataList.add(data)
-                        cityNames.add(cityName)
+                    // 날씨 데이터 가져오기 및 저장
+                    weatheryManager.fetchWeatherData(cityId, latLng.latitude, latLng.longitude)
 
-                        withContext(Dispatchers.Main) {
-                            cityAdapter.updateData(weatherDataList, cityNames)
-                        }
-                    }
+                    // 모든 도시 및 최신 날씨 데이터 로드하여 어댑터 업데이트
+                    loadWeatherData()
                 }
             }
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
+    // DB에서 데이터를 로드하여 어댑터를 업데이트하는 함수
     private fun loadWeatherData() {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                // 모든 도시의 최신 날씨 데이터를 가져옴
-                val cities = cityDao.getAllCities()
-                weatherDataList.clear()
-                cityNames.clear()
-
-                // 각 도시의 cityId로 weather 테이블에서 날씨 데이터를 가져옴
-                cities.forEach { city ->
-                    val weatherEntity = weatherDao.getLatestWeatherByCityId(city.cityId)
-                    weatherEntity?.let {
-                        // 3. WeatherEntity에서 필요한 데이터를 직접 가져옴
-                        weatherDataList.add(it) // WeatherEntity를 바로 추가
-                        cityNames.add(city.cityName) // 도시 이름 추가
-                    }
+        Log.d(TAG, "loadWeatherData :: called")
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val cities = cityDao.getAllCities()
+            val weatherDataList = mutableListOf<WeatherEntity>()
+            val cityNames = mutableListOf<String>()
+            for (city in cities) {
+                val weatherData = weatherDao.getLatestWeatherByCityId(city.cityId)
+                if (weatherData != null) {
+                    weatherDataList.add(weatherData)
+                    cityNames.add(city.cityName)
                 }
+            }
+            Log.d(TAG, "loadWeatherData :: cityNames = {$cityNames}")
 
-                // UI 업데이트
-                withContext(Dispatchers.Main) {
-                    cityAdapter.notifyDataSetChanged()
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error loading weather data: ${e.message}")
+            // UI 업데이트
+            withContext(Dispatchers.Main) {
+                adapter.updateData(weatherDataList, cityNames)
             }
         }
     }
@@ -225,7 +207,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
                 .setTitle("도시 추가")
                 .setMessage("${cityName}을(를) 추가하시겠습니까?")
                 .setPositiveButton("네") { dialog, _ ->
-                    saveCity()
+                    saveSelectedCity()
                     dialog.dismiss()
                 }
                 .setNegativeButton("아니요") { dialog, _ ->
@@ -235,17 +217,11 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    // MainActivity에서 호출하여 데이터를 업데이트하는 함수
-    fun updateList() {
-        val mainActivity = activity as MainActivity
-        cityAdapter.updateData(mainActivity.weatherDataList, mainActivity.cityNames)
-    }
-
     // Fragment 생명주기에 맞춰 MapView 관리
     override fun onStart() {
         super.onStart()
         mapView.onStart()
-        (activity as AppCompatActivity).supportActionBar?.hide() // 액션바 숨기기
+        (activity as AppCompatActivity).supportActionBar?.hide()
     }
 
     override fun onResume() {
