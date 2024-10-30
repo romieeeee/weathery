@@ -1,6 +1,7 @@
 package com.example.weathery.network
 
 import com.example.weathery.data.WeatherResponse
+//import com.example.weathery.utils.ApiKey.API_KEY
 import com.example.weathery.utils.ApiKey.Companion.W_API_KEY
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -9,7 +10,7 @@ import retrofit2.http.Query
  * 요청 파라미터에 맞춰 날씨 API 인터페이스 정의
  */
 interface WeatherApi {
-    @GET("getUltraSrtFcst") // end point 설정
+    @GET("getVilageFcst") // end point 설정
     suspend fun getWeatherData(
         @Query("ServiceKey") apiKey: String = W_API_KEY,
         @Query("pageNo") pageNo: Int,

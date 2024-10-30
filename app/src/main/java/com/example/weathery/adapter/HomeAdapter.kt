@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.weathery.database.WeatherEntity
+import com.example.weathery.data.WeatherDataProcessor
 import com.example.weathery.fragments.WeatherFragment
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -20,7 +20,7 @@ private const val TAG = "HomeAdapter"
  */
 class HomeAdapter(
     fragmentActivity: FragmentActivity,
-    private var weatherDataList: MutableList<WeatherEntity> = mutableListOf(), // 날씨 데이터 리스트
+    private var weatherDataList: MutableList<WeatherDataProcessor> = mutableListOf(), // 날씨 데이터 리스트
     private var cityNames: List<String> // 도시 이름 리스트
 ) : FragmentStateAdapter(fragmentActivity) {
 
@@ -39,17 +39,17 @@ class HomeAdapter(
         return WeatherFragment.newInstance(
             cityName, // 도시명 전달
             getCurrentDate(), // 현재 날짜 전달
-            weatherData.temperature ?: "온도 없음",
-            weatherData.weatherCondition ?: "날씨 없음",
-            weatherData.rainfall ?: "강수 없음",
-            weatherData.windSpeed ?: "풍속 없음",
-            weatherData.humidity ?: "습도 없음"
+            weatherData.getCurrentTemperature() ?: "온도 없음",
+            weatherData.getSkyCondition() ?: "날씨 없음",
+            weatherData.getRainfall() ?: "강수 없음",
+            weatherData.getWindSpeed() ?: "풍속 없음",
+            weatherData.getHumidity() ?: "습도 없음"
         )
     }
 
     // 어댑터 데이터 갱신 메소드
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(newDataList: List<WeatherEntity>, newCityNames: List<String>) {
+    fun updateData(newDataList: List<WeatherDataProcessor>, newCityNames: List<String>) {
         Log.d(TAG, "updateData :: called")
 
         this.weatherDataList = newDataList.toMutableList() // 새 데이터로 업데이트

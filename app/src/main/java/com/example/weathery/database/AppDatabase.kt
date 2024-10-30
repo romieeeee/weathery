@@ -4,11 +4,10 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [CityEntity::class, WeatherEntity::class],
-    version = 3,
+    entities = [CityEntity::class],
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun cityDao(): CityDao
-    abstract fun weatherDao(): WeatherDao
 }

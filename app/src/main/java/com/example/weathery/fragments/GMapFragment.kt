@@ -14,12 +14,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weathery.R
 import com.example.weathery.adapter.GMapAdapter
+import com.example.weathery.data.WeatherDataProcessor
 import com.example.weathery.database.DatabaseProvider
-import com.example.weathery.database.WeatherEntity
 import com.example.weathery.repository.WeatherRepository
 import com.example.weathery.utils.ApiKey
 import com.example.weathery.utils.LocationManager
-import com.example.weathery.utils.WeatheryManager
+import com.example.weathery.utils.WeatherManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -43,7 +43,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var adapter: GMapAdapter
 
     private lateinit var locationManager: LocationManager
-    private lateinit var weatheryManager: WeatheryManager
+    private lateinit var weatherManager: WeatherManager
 
     // google map
     private lateinit var mapView: MapView
@@ -56,8 +56,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
     // database
     private val db by lazy { DatabaseProvider.getDatabase(requireContext()) }
     private val cityDao by lazy { db.cityDao() } // CityDao 초기화
-    private val weatherDao by lazy { db.weatherDao() } // WeatherDao 초기화
-    private val weatherRepository by lazy { WeatherRepository(cityDao, weatherDao) }
+    private val weatherRepository by lazy { WeatherRepository() }
 
     // 가시성 제어를 위한 변수 추가
     private var isMapVisible = false
@@ -80,7 +79,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
         recyclerView.adapter = adapter
 
         locationManager = LocationManager(requireContext())
-        weatheryManager = WeatheryManager(cityDao, weatherDao, weatherRepository)
+        weatherManager = WeatherManager(cityDao,weatherRepository)
 
         // init mapView
         mapView = view.findViewById(R.id.mapView)
@@ -115,10 +114,10 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
             selectedCityName?.let { cityName ->
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     // 도시 정보 저장 및 cityId 반환
-                    val cityId = weatheryManager.saveCity(cityName, latLng.latitude, latLng.longitude)
+                    val cityId = weatherManager.saveCity(cityName, latLng.latitude, latLng.longitude)
 
                     // 날씨 데이터 가져오기 및 저장
-                    weatheryManager.fetchWeatherData(cityId, latLng.latitude, latLng.longitude)
+                    weatherManager.fetchWeatherData(latLng.latitude, latLng.longitude)
 
                     // 모든 도시 및 최신 날씨 데이터 로드하여 어댑터 업데이트
                     loadWeatherData()
@@ -132,15 +131,15 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
         Log.d(TAG, "loadWeatherData :: called")
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             val cities = cityDao.getAllCities()
-            val weatherDataList = mutableListOf<WeatherEntity>()
+            val weatherDataList = mutableListOf<WeatherDataProcessor>()
             val cityNames = mutableListOf<String>()
-            for (city in cities) {
-                val weatherData = weatherDao.getLatestWeatherByCityId(city.cityId)
-                if (weatherData != null) {
-                    weatherDataList.add(weatherData)
-                    cityNames.add(city.cityName)
-                }
-            }
+//            for (city in cities) {
+//                val weatherData = weatherDao.getLatestWeatherByCityId(city.cityId)
+//                if (weatherData != null) {
+//                    weatherDataList.add(weatherData)
+//                    cityNames.add(city.cityName)
+//                }
+//            }
             Log.d(TAG, "loadWeatherData :: cityNames = $cityNames")
 
             // UI 업데이트

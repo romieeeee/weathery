@@ -21,6 +21,7 @@ class WeatherFragment : Fragment() {
     private lateinit var tvRainfall: TextView
     private lateinit var tvWind: TextView
     private lateinit var tvHumidity: TextView
+    private lateinit var tvFcst1: TextView
 
     companion object {
         // newInstance를 사용해 데이터를 전달받음
@@ -82,9 +83,11 @@ class WeatherFragment : Fragment() {
             tvTodayDate.text = it.getString("DATE") ?: "날짜 없음"
             tvNowTemp.text = it.getString("TEMPERATURE") ?: "정보 없음"
             tvNowWeather.text = it.getString("SKY_CONDITION") ?: "정보 없음"
-            tvRainfall.text = it.getString("RAINFALL") ?: "정보 없음"
-            tvWind.text = "${it.getString("WIND_SPEED") ?: "정보 없음"} m/s"
+            tvRainfall.text = "${it.getString("RAINFALL") ?: "정보 없음"}%"
+            tvWind.text = "${it.getString("WIND_SPEED") ?: "정보 없음"}m/s"
             tvHumidity.text = "${it.getString("HUMIDITY") ?: "정보 없음"}%"
         }
     }
 }
+
+

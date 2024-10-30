@@ -60,7 +60,7 @@
                     android:layout_height="95dp"
                     android:layout_marginStart="30dp"
                     android:fontFamily="@font/pre_extra"
-                    android:text="19"
+                    android:text="33"
                     android:textColor="@color/black"
                     android:textSize="80sp"
                     android:textStyle="bold"
@@ -111,7 +111,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15sp"
                 android:fontFamily="@font/pre_regular"
-                android:text="강수량"
+                android:text="강수 확률"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
 
@@ -121,7 +121,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="90sp"
                 android:fontFamily="@font/pre_regular"
-                android:text="3cm"
+                android:text="333%"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -155,7 +155,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="90sp"
                 android:fontFamily="@font/pre_regular"
-                android:text="19km/h"
+                android:text="333km/h"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -189,7 +189,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="90sp"
                 android:fontFamily="@font/pre_regular"
-                android:text="64%"
+                android:text="333%"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -212,7 +212,19 @@
             android:background="@drawable/bg_radius_main_trans"
             android:gravity="center|left"
             android:orientation="horizontal"
-            android:paddingStart="20sp" />
+            android:paddingStart="20sp">
+
+            <TextView
+                android:id="@+id/fcst1"
+                android:layout_width="65dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15sp"
+                android:fontFamily="@font/pre_bold"
+                android:text="주간예보"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+
+        </LinearLayout>
     </LinearLayout>
 
 </ScrollView>
