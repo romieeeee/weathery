@@ -2,21 +2,32 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph.xml"
+    android:id="@+id/nav_graph"
     app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/weatherFragment"
+        android:name="com.example.weathery.fragments.WeatherFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_weather" >
+        <action
+            android:id="@+id/action_weatherFragment_to_GMapFragment"
+            app:destination="@id/GMapFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.weathery.fragments.HomeFragment"
         android:label="fragment_home"
-        tools:layout="@layout/fragment_home">
+        tools:layout="@layout/fragment_home" >
         <action
-            android:id="@+id/action_homeFragment_to_detailFragment"
-            app:destination="@id/detailFragment" />
+            android:id="@+id/action_homeFragment_to_GMapFragment"
+            app:destination="@id/GMapFragment" />
     </fragment>
     <fragment
-        android:id="@+id/detailFragment"
-        android:name="com.example.weathery.fragments.DetailFragment"
-        android:label="fragment_detail"
-        tools:layout="@layout/fragment_detail" />
+        android:id="@+id/GMapFragment"
+        android:name="com.example.weathery.fragments.GMapFragment"
+        android:label="fragment_gmap"
+        tools:layout="@layout/fragment_gmap" />
+
 </navigation>

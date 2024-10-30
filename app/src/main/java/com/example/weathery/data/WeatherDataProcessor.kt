@@ -1,8 +1,8 @@
 package com.example.weathery.data
 
 /**
- * 날씨 데이터를 처리하고 필요한 정보를 추출하는 클래스
- * - category를 기준으로 원하는 데이터를 추출하여 반환한다.
+ * 날씨 데이터 처리한느 클래스
+ * - category를 기준으로 원하는 데이터를 추출하여 반환
  */
 class WeatherDataProcessor(private val weatherResponse: WeatherResponse) {
 
@@ -51,7 +51,7 @@ class WeatherDataProcessor(private val weatherResponse: WeatherResponse) {
     fun getRainfall(): String? {
         val rainfallData = getWeatherDataByCategory("RN1")
         return if (rainfallData == "강수없음") {
-            "0" // 강수 없음인 경우 0%로 처리
+            "0mm" // 강수 없음인 경우 0mm로 처리
         } else {
             rainfallData // 나머지 값은 그대로 반환
         }

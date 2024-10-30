@@ -1,28 +1,39 @@
 package com.example.weathery.fragments
 
-import android.graphics.PorterDuff
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.weathery.R
-import com.example.weathery.adapter.WeatherPagerAdapter
+import com.example.weathery.adapter.HomeAdapter
+import com.example.weathery.database.DatabaseProvider
+import com.example.weathery.database.WeatherEntity
+import com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
+private const val TAG = "HomeFragment"
+
+/**
+ * 메인 화면
+ * - 사용자의 현재 위치 가져오기
+ * - 위치를 토대로 도시명 가져오기
+ * - 날씨 api 호출하기
+ */
 class HomeFragment : Fragment() {
 
-    /**
-     * 날씨 API 호출에 사용할 파라미터
-     */
-    private var base_date = "20240920"  // 발표 일자
-    private var base_time = "0600"      // 발표 시각
-    private var nx = "55"               // 예보지점 X 좌표
-    private var ny = "127"              // 예보지점 Y 좌표
+    private lateinit var dotsIndicator: DotsIndicator
+    private lateinit var viewPager: ViewPager2
+    private lateinit var adapter: HomeAdapter
+
+    private val db by lazy { DatabaseProvider.getDatabase(requireContext()) }
+    private val cityDao by lazy { db.cityDao() } // CityDao 초기화
+    private val weatherDao by lazy { db.weatherDao() } // WeatherDao 초기화
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,31 +45,40 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Toolbar 세부 설정
-        val toolbar = (activity as? AppCompatActivity)?.findViewById<Toolbar>(R.id.toolbar)
-        val titleView = toolbar?.findViewById<TextView>(R.id.toolbar_title)
+        viewPager = view.findViewById(R.id.viewPager)
+        dotsIndicator = view.findViewById(R.id.dots_indicator)
 
-        titleView?.text = "Berlin, Germany" // 지역명 받아와서 설정
-        titleView?.setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_blue))
+        // 빈 데이터로 초기화하고, 데이터를 동적으로 로드
+        adapter = HomeAdapter(requireActivity(), mutableListOf(), listOf())
+        viewPager.adapter = adapter
 
-        // 메뉴 버튼 색상 변경
-        toolbar?.navigationIcon?.setColorFilter(
-            ContextCompat.getColor(requireContext(), R.color.dark_blue),
-            PorterDuff.Mode.SRC_IN
-        )
+        dotsIndicator.attachTo(viewPager)
 
-        // ViewPager 설정
-        val viewPager = view.findViewById<ViewPager2>(R.id.view_pager)
-        val adapter = WeatherPagerAdapter(requireActivity())
-        viewPager.adapter = adapter // adapter 연결
+        // 데이터 로드하여 ViewPager 업데이트
+        loadWeatherData()
+    }
 
-        // 기본 날씨 프래그먼트 추가
-        adapter.addFragment(DefaultLocFragment())
+    // db 조회해서 데이터 가져오기
+    fun loadWeatherData() {
+        Log.d(TAG, "loadWeatherData :: called")
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val cities = cityDao.getAllCities()
+            val weatherDataList = mutableListOf<WeatherEntity>()
+            val cityNames = mutableListOf<String>()
 
-//        // 지역 추가 페이지
-//        adapter.addFragment(AddLocFragment { newCity ->
-//            adapter.addFragment(DefaultLocFragment.newInstance(newCity))
-//            viewPager.currentItem = adapter.itemCount - 1
-//        })
+            for (city in cities) {
+                val weatherData = weatherDao.getLatestWeatherByCityId(city.cityId)
+                if (weatherData != null) {
+                    weatherDataList.add(weatherData)
+                    cityNames.add(city.cityName)
+                }
+            }
+            Log.d(TAG, "loadWeatherData :: cityNames = $cityNames")
+
+            // UI 업데이트
+            withContext(Dispatchers.Main) {
+                adapter.updateData(weatherDataList, cityNames)
+            }
+        }
     }
 }

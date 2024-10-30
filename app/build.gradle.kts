@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -26,7 +27,7 @@ android {
             )
         }
     }
-    
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -42,7 +43,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -53,6 +53,8 @@ dependencies {
 
     // ViewPager2 사용
     implementation(libs.androidx.viewpager2)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.room.common)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -71,12 +73,31 @@ dependencies {
     // Testing Navigation
     androidTestImplementation(libs.androidx.navigation.testing)
 
-    implementation (libs.material.v190)
+    implementation(libs.material.v190)
 
     // drawerlayout
-    implementation (libs.androidx.drawerlayout)
+    implementation(libs.androidx.drawerlayout)
 
     // Retrofit2
     implementation(libs.retrofit)
     implementation(libs.retrofit2.converter.gson) // Gson 컨버터
+
+    implementation(libs.play.services.location)
+    implementation(libs.places)
+
+    // indicator
+    implementation(libs.dotsindicator)
+
+    // google maps api
+    implementation(libs.play.services.maps)
+
+    // room
+    implementation(libs.androidx.room.runtime)
+    annotationProcessor(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    // for debuging room database
+    debugImplementation(libs.debug.db)
+    debugImplementation(libs.debug.db.encrypt)
 }
