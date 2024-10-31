@@ -61,26 +61,32 @@ class HomeFragment : Fragment() {
 
         dotsIndicator.attachTo(viewPager)
 
-        // 현재 위치 가져오기
+        // 현재 위치와 날씨 데이터 가져오기
         getNowWeather()
 
         // 데이터 로드하여 ViewPager 업데이트
         loadWeatherData()
     }
 
-    // 현재 위치와 날씨 데이터 가져오기
+    /**
+     * 현재 위치와 날씨 데이터 가져오기
+     */
     private fun getNowWeather() {
-        Log.d(TAG, "setDefault :: called")
         locationManager.getLastKnownLocation(
             onSuccess = { location ->
-                location?.let { getWeather(it.latitude, it.longitude) }
+                location?.let {
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val cityName = locationManager.getCityNameFromCoord(it.latitude, it.longitude)
+                        weatherManager.saveCity(cityName, it.latitude, it.longitude)
+                    }
+                }
             },
             onFailure = { Log.e(TAG, "위치 가져오기 실패") }
         )
     }
 
-    // api 응답값을 토대로 현재 지역의 날씨를 list에 추가?????
-    fun loadWeatherData() {
+    // api 응답값을 토대로 현재 지역의 날씨를 list에 추가
+    private fun loadWeatherData() {
         Log.d(TAG, "loadWeatherData :: called")
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             val cities = cityDao.getAllCities()
@@ -91,40 +97,15 @@ class HomeFragment : Fragment() {
                 // API를 통해 날씨 데이터 가져오기
                 val weatherData = weatherManager.fetchWeatherData(city.latitude, city.longitude)
                 if (weatherData != null) {
-                    // 여기에서 WeatherDataProcessor 객체를 생성하는 로직 추가 필요
                     val processedData = WeatherDataProcessor(weatherData) // 예시로 처리
                     weatherDataList.add(processedData)
                     cityNames.add(city.cityName)
                 }
             }
 
-            Log.d(TAG, "loadWeatherData :: cityNames = $cityNames")
-
-            // UI 업데이트
             withContext(Dispatchers.Main) {
                 adapter.updateData(weatherDataList, cityNames)
             }
-        }
-    }
-
-
-
-    /**
-     * 현재 위치의 날씨 정보를 가져오고 도시 정보를 DB에 저장하는 메서드
-     */
-    private fun getWeather(latitude: Double, longitude: Double) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            val cityName = locationManager.getCityNameFromCoord(latitude, longitude)
-            weatherManager.saveCity(cityName, latitude, longitude)
-
-            val weatherData = weatherManager.fetchWeatherData(latitude, longitude)
-            weatherData?.let { data ->
-                withContext(Dispatchers.Main) {
-
-                    // 날씨 정보 화면에 표시
-                }
-            }
-            Log.d(TAG, "getWeather :: cityName = $cityName, weatherData = ($weatherData)")
         }
     }
 }

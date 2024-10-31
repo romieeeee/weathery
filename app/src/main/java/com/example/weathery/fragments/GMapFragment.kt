@@ -79,7 +79,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
         recyclerView.adapter = adapter
 
         locationManager = LocationManager(requireContext())
-        weatherManager = WeatherManager(cityDao,weatherRepository)
+        weatherManager = WeatherManager(cityDao)
 
         // init mapView
         mapView = view.findViewById(R.id.mapView)
@@ -114,7 +114,7 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
             selectedCityName?.let { cityName ->
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     // 도시 정보 저장 및 cityId 반환
-                    val cityId = weatherManager.saveCity(cityName, latLng.latitude, latLng.longitude)
+                    weatherManager.saveCity(cityName, latLng.latitude, latLng.longitude)
 
                     // 날씨 데이터 가져오기 및 저장
                     weatherManager.fetchWeatherData(latLng.latitude, latLng.longitude)
@@ -133,13 +133,15 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
             val cities = cityDao.getAllCities()
             val weatherDataList = mutableListOf<WeatherDataProcessor>()
             val cityNames = mutableListOf<String>()
-//            for (city in cities) {
-//                val weatherData = weatherDao.getLatestWeatherByCityId(city.cityId)
-//                if (weatherData != null) {
-//                    weatherDataList.add(weatherData)
-//                    cityNames.add(city.cityName)
-//                }
-//            }
+            for (city in cities) {
+                // API를 통해 날씨 데이터 가져오기
+                val weatherData = weatherManager.fetchWeatherData(city.latitude, city.longitude)
+                if (weatherData != null) {
+                    val processedData = WeatherDataProcessor(weatherData) // 예시로 처리
+                    weatherDataList.add(processedData)
+                    cityNames.add(city.cityName)
+                }
+            }
             Log.d(TAG, "loadWeatherData :: cityNames = $cityNames")
 
             // UI 업데이트

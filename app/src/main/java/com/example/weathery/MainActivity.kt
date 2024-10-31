@@ -23,7 +23,6 @@ class MainActivity : AppCompatActivity() {
     // database
     private val db by lazy { DatabaseProvider.getDatabase(this) }
     private val cityDao by lazy { db.cityDao() } // CityDao 초기화
-    private val weatherRepository by lazy { WeatherRepository() }
 
     private lateinit var weatherManager: WeatherManager
     private lateinit var locationManager: LocationManager
@@ -87,44 +86,4 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-//    // 현재 위치와 날씨 데이터 가져오기
-//    private fun setDefault() {
-//        Log.d(TAG, "setDefault :: called")
-//        locationManager.getLastKnownLocation(
-//            onSuccess = { location ->
-//                location?.let { getWeather(it.latitude, it.longitude) }
-//            },
-//            onFailure = { Log.e(TAG, "위치 가져오기 실패") }
-//        )
-//    }
-//
-//    /**
-//     * 현재 위치의 날씨 정보를 가져오고 도시 정보를 DB에 저장하는 메서드
-//     */
-//    private fun getWeather(latitude: Double, longitude: Double) {
-//        lifecycleScope.launch(Dispatchers.IO) {
-//            val cityName = locationManager.getCityNameFromCoord(latitude, longitude)
-//            weatherManager.saveCity(cityName, latitude, longitude)
-//
-//            val weatherData = weatherManager.fetchWeatherData(latitude, longitude)
-//            weatherData?.let { data ->
-//                withContext(Dispatchers.Main) {
-//                    notifyWeatherDataUpdated()
-//                }
-//            }
-//            Log.d(TAG, "getWeather :: cityName = $cityName, weatherData = ($weatherData)")
-//        }
-//    }
-//
-//    // 데이터를 업데이트하라고 알리는 메서드
-//    private fun notifyWeatherDataUpdated() {
-//        Log.d(TAG, "notifyWeatherDataUpdated :: called")
-//        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
-//        navHostFragment?.childFragmentManager?.fragments?.forEach { fragment ->
-//            if (fragment is HomeFragment) {
-//                fragment.loadWeatherData() // 데이터 새로 고침
-//            }
-//        }
-//    }
 }
