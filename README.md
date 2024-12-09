@@ -60,9 +60,9 @@ Weathery는 사용자가 관심 있는 지역의 날씨를 간편하게 확인�
 
 ## 📷 **Screenshots**
 ### 메인 화면
-![Main Screen](./screenshots/main_screen.png)
+<img src="./screenshots/main_screen.png" width="200" height="400"/>
 
 ### 검색 화면
-![Search Screen](./screenshots/search_screen.png)
+<img src="./screenshots/search_screen.png" width="200" height="400"/>
 
 ---
