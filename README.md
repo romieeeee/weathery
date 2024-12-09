@@ -46,7 +46,7 @@ Weathery는 사용자가 관심 있는 지역의 날씨를 간편하게 확인�
 ---
 
 ## 🛠️ **Tech Stack**
-- **언어**: Kotlin, Java
+- **언어**: Kotlin
 - **아키텍처**: (현재는 기존 방식 사용, MVVM으로 추후 리팩토링 예정)
 - **라이브러리 및 프레임워크**:
   - UI: ViewPager2, Navigation Component, Material Design, DrawerLayout
