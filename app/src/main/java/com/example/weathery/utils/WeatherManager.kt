@@ -1,6 +1,7 @@
 package com.example.weathery.utils
 
 import android.util.Log
+import com.example.weathery.R
 import com.example.weathery.data.WeatherResponse
 import com.example.weathery.database.CityDao
 import com.example.weathery.database.CityEntity

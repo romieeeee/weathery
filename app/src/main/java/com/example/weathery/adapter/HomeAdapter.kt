@@ -43,7 +43,8 @@ class HomeAdapter(
             weatherData.getSkyCondition() ?: "날씨 없음",
             weatherData.getRainfall() ?: "강수 없음",
             weatherData.getWindSpeed() ?: "풍속 없음",
-            weatherData.getHumidity() ?: "습도 없음"
+            weatherData.getHumidity() ?: "습도 없음",
+            weatherData.getPrecipitationType() ?: "강수 없음"
         )
     }
 

@@ -1,5 +1,7 @@
 package com.example.weathery.data
 
+import com.example.weathery.R
+
 /**
  * 날씨 데이터 처리하는 클래스
  * - category를 기준으로 원하는 데이터를 추출하여 반환
@@ -91,4 +93,24 @@ class WeatherDataProcessor(private val weatherResponse: WeatherResponse) {
      * 낙뢰(LGT)를 반환하는 함수
      */
     fun getLightning(): String = getWeatherDataByCategory("LGT")
+
+    /**
+     * 날씨에 따라 아이콘을 반환하는 함수
+     */
+    private fun getWeatherIcon(precipitationType: String?, skyCondition: String?): Int {
+        if (precipitationType == "없음") { // 강수가 없을 경우
+            return when (skyCondition) {
+                "맑음" -> R.drawable.ic_sunny
+                "구름 많음", "흐림" -> R.drawable.ic_cloudy
+                else -> R.drawable.ic_unknown // 기본 아이콘 (예: 물음표 아이콘)
+            }
+        } else { // 강수가 있을 경우
+            return when (precipitationType) {
+                "비" -> R.drawable.ic_rainy
+                "비/눈" -> R.drawable.ic_rainysnow
+                "눈" -> R.drawable.ic_snow
+                else -> R.drawable.ic_unknown
+            }
+        }
+    }
 }
