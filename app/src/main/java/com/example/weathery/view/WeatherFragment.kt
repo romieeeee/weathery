@@ -1,21 +1,24 @@
-package com.example.weathery.fragments
+package com.example.weathery.view
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.weathery.R
-import java.util.Locale
+import com.example.weathery.adapter.HourlyAdapter
+import com.example.weathery.model.HourlyWeather
 
 /**
  * 각 도시의 날씨 정보를 받아서 UI에 표시
  */
 class WeatherFragment : Fragment() {
-
     private lateinit var tvLocation: TextView
     private lateinit var tvTodayDate: TextView
     private lateinit var tvNowTemp: TextView
@@ -24,7 +27,12 @@ class WeatherFragment : Fragment() {
     private lateinit var tvWind: TextView
     private lateinit var tvHumidity: TextView
     private lateinit var ivWeather: ImageView
-    private lateinit var tvFcst1: TextView
+
+    private lateinit var hourlyWeatherList: List<HourlyWeather>
+
+    // recyclerview
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: HourlyAdapter
 
     companion object {
         // newInstance를 사용해 데이터를 전달받음
@@ -36,7 +44,8 @@ class WeatherFragment : Fragment() {
             rainfall: String?,
             windSpeed: String?,
             humidity: String?,
-            precipitation_type: String?
+            precipitation_type: String?,
+            hourlyWeatherList: List<HourlyWeather>
         ): WeatherFragment {
             val fragment = WeatherFragment()
             val args = Bundle().apply {
@@ -48,6 +57,7 @@ class WeatherFragment : Fragment() {
                 putString("WIND_SPEED", windSpeed)
                 putString("HUMIDITY", humidity)
                 putString("PRECIPITATION_TYPE", precipitation_type)
+                putParcelableArrayList("HOURLY_WEATHER_LIST", ArrayList(hourlyWeatherList)) // 시간대별 날씨 추가
             }
             fragment.arguments = args
             return fragment
@@ -61,13 +71,26 @@ class WeatherFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_weather, container, false)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // init
+        // UI 초기화
         initUI(view)
 
-        // set text
+        // 시간대별 날씨 리스트 받기
+        hourlyWeatherList = arguments?.getParcelableArrayList("HOURLY_WEATHER_LIST") ?: listOf()
+
+        // recyclerview setup
+        recyclerView = view.findViewById(R.id.hourly_recycler_view)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+        adapter = HourlyAdapter(hourlyWeatherList)
+        recyclerView.adapter = adapter
+
+        Log.d("WeatherFragment", hourlyWeatherList.toString())
+
+        // 날씨 데이터 설정
         setWeatherData()
     }
 
@@ -93,7 +116,7 @@ class WeatherFragment : Fragment() {
             tvWind.text = "${it.getString("WIND_SPEED") ?: "정보 없음"}m/s"
             tvHumidity.text = "${it.getString("HUMIDITY") ?: "정보 없음"}%"
 
-            // 날씨 아이콘 변경
+            // 날씨 아이콘 설정
             val skyCondition = it.getString("SKY_CONDITION")
             val precipitationType = it.getString("PRECIPITATION_TYPE")
 
@@ -106,7 +129,7 @@ class WeatherFragment : Fragment() {
             return when (skyCondition) {
                 "맑음" -> R.drawable.ic_sunny
                 "구름 많음", "흐림" -> R.drawable.ic_cloudy
-                else -> R.drawable.ic_unknown // 기본 아이콘 (예: 물음표 아이콘)
+                else -> R.drawable.ic_unknown
             }
         } else { // 강수가 있을 경우
             return when (precipitationType) {
