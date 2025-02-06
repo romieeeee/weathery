@@ -1,4 +1,4 @@
-package com.example.weathery.database
+package com.example.weathery.data.local
 
 import androidx.room.Entity
 import androidx.room.Index

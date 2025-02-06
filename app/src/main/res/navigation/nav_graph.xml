@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/weatherFragment"
-        android:name="com.example.weathery.fragments.WeatherFragment"
+        android:name="com.example.weathery.view.WeatherFragment"
         android:label="fragment_main"
         tools:layout="@layout/fragment_weather" >
         <action
@@ -17,7 +17,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.weathery.fragments.HomeFragment"
+        android:name="com.example.weathery.view.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" >
         <action
@@ -26,7 +26,7 @@
     </fragment>
     <fragment
         android:id="@+id/GMapFragment"
-        android:name="com.example.weathery.fragments.GMapFragment"
+        android:name="com.example.weathery.view.GMapFragment"
         android:label="fragment_gmap"
         tools:layout="@layout/fragment_gmap" />
 

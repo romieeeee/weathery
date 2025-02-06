@@ -1,4 +1,4 @@
-package com.example.weathery.fragments
+package com.example.weathery.view
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -14,9 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weathery.R
 import com.example.weathery.adapter.GMapAdapter
-import com.example.weathery.data.WeatherDataProcessor
-import com.example.weathery.database.DatabaseProvider
-import com.example.weathery.repository.WeatherRepository
+import com.example.weathery.utils.WeatherDataProcessor
+import com.example.weathery.data.local.DatabaseProvider
 import com.example.weathery.utils.ApiKey
 import com.example.weathery.utils.LocationManager
 import com.example.weathery.utils.WeatherManager
@@ -56,7 +55,6 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
     // database
     private val db by lazy { DatabaseProvider.getDatabase(requireContext()) }
     private val cityDao by lazy { db.cityDao() } // CityDao 초기화
-    private val weatherRepository by lazy { WeatherRepository() }
 
     // 가시성 제어를 위한 변수 추가
     private var isMapVisible = false
@@ -133,13 +131,15 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
             val cities = cityDao.getAllCities()
             val weatherDataList = mutableListOf<WeatherDataProcessor>()
             val cityNames = mutableListOf<String>()
-            for (city in cities) {
-                // API를 통해 날씨 데이터 가져오기
-                val weatherData = weatherManager.fetchWeatherData(city.latitude, city.longitude)
-                if (weatherData != null) {
-                    val processedData = WeatherDataProcessor(weatherData) // 예시로 처리
-                    weatherDataList.add(processedData)
-                    cityNames.add(city.cityName)
+            cityDao.getAllCities().collect { cities ->
+                for (city in cities) {                // API를 통해 날씨 데이터 가져오기
+                    // API를 통해 날씨 데이터 가져오기
+                    val weatherData = weatherManager.fetchWeatherData(city.latitude, city.longitude)
+                    if (weatherData != null) {
+                        val processedData = WeatherDataProcessor(weatherData) // 예시로 처리
+                        weatherDataList.add(processedData)
+                        cityNames.add(city.cityName)
+                    }
                 }
             }
             Log.d(TAG, "loadWeatherData :: cityNames = $cityNames")

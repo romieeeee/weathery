@@ -1,10 +1,10 @@
-package com.example.weathery.database
+package com.example.weathery.data.local
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
+import kotlinx.coroutines.flow.Flow
 
 /**
  * DAO 인터페이스
@@ -23,5 +23,5 @@ interface CityDao {
 
     // 모든 도시 데이터 가져오기
     @Query("SELECT * FROM city")
-    suspend fun getAllCities(): List<CityEntity>
+    fun getAllCities(): Flow<List<CityEntity>>
 }

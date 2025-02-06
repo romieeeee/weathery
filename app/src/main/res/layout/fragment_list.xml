@@ -5,7 +5,7 @@
     android:layout_height="110dp"
     android:layout_marginBottom="12dp"
     android:background="@drawable/bg_radius_list"
-    tools:context=".fragments.ListFragment">
+    tools:context=".view.ListFragment">
 
         <ImageView
             android:layout_width="32dp"
