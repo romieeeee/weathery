@@ -1,6 +1,7 @@
 package com.example.weathery.view
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,11 +10,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weathery.R
 import com.example.weathery.adapter.HourlyAdapter
+import com.example.weathery.adapter.WeeklyAdapter
 import com.example.weathery.model.HourlyWeather
+import com.example.weathery.model.WeeklyWeather
 
 /**
  * 각 도시의 날씨 정보를 받아서 UI에 표시
@@ -29,10 +34,15 @@ class WeatherFragment : Fragment() {
     private lateinit var ivWeather: ImageView
 
     private lateinit var hourlyWeatherList: List<HourlyWeather>
+    private lateinit var weeklyWeatherList: List<WeeklyWeather>
 
-    // recyclerview
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: HourlyAdapter
+    // hourly recyclerview
+    private lateinit var hourlyRecyclerView: RecyclerView
+    private lateinit var hourlyAdapter: HourlyAdapter
+
+    // weekly recyclerview
+    private lateinit var weeklyRecyclerView: RecyclerView
+    private lateinit var weeklyAdapter: WeeklyAdapter
 
     companion object {
         // newInstance를 사용해 데이터를 전달받음
@@ -45,7 +55,8 @@ class WeatherFragment : Fragment() {
             windSpeed: String?,
             humidity: String?,
             precipitation_type: String?,
-            hourlyWeatherList: List<HourlyWeather>
+            hourlyWeatherList: List<HourlyWeather>,
+            weeklyWeatherList: List<WeeklyWeather>
         ): WeatherFragment {
             val fragment = WeatherFragment()
             val args = Bundle().apply {
@@ -58,6 +69,7 @@ class WeatherFragment : Fragment() {
                 putString("HUMIDITY", humidity)
                 putString("PRECIPITATION_TYPE", precipitation_type)
                 putParcelableArrayList("HOURLY_WEATHER_LIST", ArrayList(hourlyWeatherList)) // 시간대별 날씨 추가
+                putParcelableArrayList("WEEKLY_WEATHER_LIST", ArrayList(weeklyWeatherList)) // 시간대별 날씨 추가
             }
             fragment.arguments = args
             return fragment
@@ -80,15 +92,27 @@ class WeatherFragment : Fragment() {
 
         // 시간대별 날씨 리스트 받기
         hourlyWeatherList = arguments?.getParcelableArrayList("HOURLY_WEATHER_LIST") ?: listOf()
+        weeklyWeatherList = arguments?.getParcelableArrayList("WEEKLY_WEATHER_LIST") ?: listOf()
 
         // recyclerview setup
-        recyclerView = view.findViewById(R.id.hourly_recycler_view)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        hourlyRecyclerView = view.findViewById(R.id.hourly_recycler_view)
+        hourlyRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
-        adapter = HourlyAdapter(hourlyWeatherList)
-        recyclerView.adapter = adapter
+        hourlyAdapter = HourlyAdapter(hourlyWeatherList)
+        hourlyRecyclerView.adapter = hourlyAdapter
+
+        // weekly recyclerview setup
+        weeklyRecyclerView = view.findViewById(R.id.weekly_recycler_view)
+        weeklyRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        weeklyAdapter = WeeklyAdapter(weeklyWeatherList)
+        weeklyRecyclerView.adapter = weeklyAdapter
+
+        val customDecoration = CustomDecoration(4f, 8f, Color.GRAY)
+        weeklyRecyclerView.addItemDecoration(customDecoration)
 
         Log.d("WeatherFragment", hourlyWeatherList.toString())
+        Log.d("WeatherFragment", weeklyWeatherList.toString())
 
         // 날씨 데이터 설정
         setWeatherData()

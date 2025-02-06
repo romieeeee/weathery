@@ -38,6 +38,7 @@ class WeatherAdapter(
 
         val weatherData = WeatherDataProcessor(weatherResponse)
         val hourlyWeatherList = weatherData.getHourlyWeatherList() // 시간대별 날씨 리스트 가져오기
+        val weeklyWeatherList = weatherData.getWeeklyWeatherList()
 
 
         // weatherFragment에 newInstance로 데이터 던지기
@@ -50,7 +51,8 @@ class WeatherAdapter(
             weatherData.getWindSpeed(),
             weatherData.getHumidity(),
             weatherData.getPrecipitationType(),
-            hourlyWeatherList
+            hourlyWeatherList,
+            weeklyWeatherList
         )
     }
 

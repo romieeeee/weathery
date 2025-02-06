@@ -3,6 +3,7 @@ package com.example.weathery.utils
 import com.example.weathery.R
 import com.example.weathery.model.HourlyWeather
 import com.example.weathery.model.WeatherResponse
+import com.example.weathery.model.WeeklyWeather
 
 class WeatherDataProcessor(private val weatherResponse: WeatherResponse) {
 
@@ -53,6 +54,29 @@ class WeatherDataProcessor(private val weatherResponse: WeatherResponse) {
         }
 
         return weatherList.sortedBy { it.time }
+    }
+
+    fun getWeeklyWeatherList(): List<WeeklyWeather> {
+        val weeklyDataMap = mutableMapOf<String, MutableMap<String, String>>()
+        val weatherList = mutableListOf<WeeklyWeather>()
+
+        weatherResponse.response.body?.items?.item?.forEach { item ->
+            val date = item.fcstDate
+            val category = item.category
+            val value = item.fcstValue
+
+            weeklyDataMap.getOrPut(date) { mutableMapOf() }[category] = value
+        }
+
+        weeklyDataMap.forEach { (date, categoryMap) ->
+            val skyCode = categoryMap["SKY"]
+            val weather = skyConditionMap[skyCode] ?: "정보 없음"
+            val iconRes = iconResourceMap[skyCode] ?: R.drawable.ic_unknown
+
+            weatherList.add(WeeklyWeather(date, weather, iconRes))
+        }
+
+        return weatherList.sortedBy { it.date }
     }
 
     /**
