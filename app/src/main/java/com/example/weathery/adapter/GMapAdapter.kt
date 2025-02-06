@@ -45,7 +45,7 @@ class GMapAdapter(
     }
 
     inner class CityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val nameTextView: TextView = itemView.findViewById(R.id.tv_city_name)
+        val nameTextView: TextView = itemView.findViewById(R.id.city_list_name)
         val tempTextView: TextView = itemView.findViewById(R.id.tv_city_temp)
     }
 

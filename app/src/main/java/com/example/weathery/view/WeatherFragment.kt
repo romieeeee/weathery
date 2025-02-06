@@ -10,8 +10,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weathery.R
@@ -44,6 +42,7 @@ class WeatherFragment : Fragment() {
     private lateinit var weeklyRecyclerView: RecyclerView
     private lateinit var weeklyAdapter: WeeklyAdapter
 
+
     companion object {
         // newInstance를 사용해 데이터를 전달받음
         fun newInstance(
@@ -56,7 +55,7 @@ class WeatherFragment : Fragment() {
             humidity: String?,
             precipitation_type: String?,
             hourlyWeatherList: List<HourlyWeather>,
-            weeklyWeatherList: List<WeeklyWeather>
+            weeklyWeatherList: List<WeeklyWeather>,
         ): WeatherFragment {
             val fragment = WeatherFragment()
             val args = Bundle().apply {
