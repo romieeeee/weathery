@@ -1,20 +1,41 @@
-package com.example.weathery.repository
+package com.example.weathery.data.repository
 
-import com.example.weathery.data.WeatherResponse
-import com.example.weathery.network.RetrofitClient
-import com.example.weathery.network.WeatherApi
+import android.util.Log
+import com.example.weathery.data.local.CityDao
+import com.example.weathery.data.local.CityEntity
+import com.example.weathery.data.remote.RetrofitClient
+import com.example.weathery.data.remote.WeatherApi
+import com.example.weathery.model.WeatherResponse
 import com.example.weathery.utils.ApiKey
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class WeatherRepository {
+const val TAG = "WeatherRepository"
 
-//    companion object {
-//        private const val CACHE_EXPIRATION_TIME = 3600 * 1000 // 1시간
-//    }
+/**
+ * 네트워크(API 호출)와 로컬 DB(Room)를 통합적으로 관리
+ * - 날씨 데이터: Retrofit을 통해 API 호출 및 데이터 반환
+ * - 도시 데이터: Room DB에서 데이터를 저장하고 불러오기
+ */
+class WeatherRepository(private val cityDao: CityDao) {
 
-    //
-    suspend fun callWeatherApi(lat: Double, lon: Double): WeatherResponse? {
+    suspend fun addCity(cityEntity: CityEntity) {
+        val existingCity = cityDao.getCityByName(cityEntity.cityName)
+        if (existingCity == null) {
+            cityDao.insertCity(cityEntity)
+        } else {
+            Log.d(TAG, "addCity :: city already exists")
+        }
+    }
+
+    fun getCities(): Flow<List<CityEntity>> = cityDao.getAllCities()
+
+    /**
+     * 좌표(latitude, longitude)로 날씨 api 호출하기
+     * - 비동기 작업이므로 suspend 함수로 선언
+     */
+    suspend fun fetchWeatherData(lat: Double, lon: Double): WeatherResponse? {
         return try {
             val apiKey = ApiKey.W_API_KEY
             val baseDate = getFormattedDate()
@@ -29,7 +50,8 @@ class WeatherRepository {
                     baseDate,
                     "0500",
                     lat.toInt(),
-                    lon.toInt())
+                    lon.toInt()
+                )
 
             if (response.response.header.resultCode == "00") {
                 response // 성공 시 WeatherResponse 반환

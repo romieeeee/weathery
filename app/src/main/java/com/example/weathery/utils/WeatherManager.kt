@@ -1,17 +1,15 @@
 package com.example.weathery.utils
 
 import android.util.Log
-import com.example.weathery.R
-import com.example.weathery.data.WeatherResponse
-import com.example.weathery.database.CityDao
-import com.example.weathery.database.CityEntity
-import com.example.weathery.network.RetrofitClient
-import com.example.weathery.network.WeatherApi
-import com.example.weathery.repository.WeatherRepository
+import com.example.weathery.model.WeatherResponse
+import com.example.weathery.data.local.CityDao
+import com.example.weathery.data.local.CityEntity
+import com.example.weathery.data.remote.RetrofitClient
+import com.example.weathery.data.remote.WeatherApi
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-private const val TAG = "WeatheryManager"
+private const val TAG = "WeatherManager"
 
 class WeatherManager(
     private val cityDao: CityDao,

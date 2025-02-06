@@ -5,8 +5,9 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.weathery.data.WeatherDataProcessor
-import com.example.weathery.fragments.WeatherFragment
+import com.example.weathery.model.WeatherResponse
+import com.example.weathery.utils.WeatherDataProcessor
+import com.example.weathery.view.WeatherFragment
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -18,10 +19,10 @@ private const val TAG = "HomeAdapter"
  * - 각 도시별로 new fragment 생성
  * - API에서 받아온 날씨 데이터를 각 fragment로 전달
  */
-class HomeAdapter(
+class WeatherAdapter(
     fragmentActivity: FragmentActivity,
-    private var weatherDataList: MutableList<WeatherDataProcessor> = mutableListOf(), // 날씨 데이터 리스트
-    private var cityNames: List<String> // 도시 이름 리스트
+    private var weatherDataList: MutableList<WeatherResponse> = mutableListOf(),
+    private var cityNames: List<String>
 ) : FragmentStateAdapter(fragmentActivity) {
 
     override fun getItemCount(): Int {
@@ -32,30 +33,36 @@ class HomeAdapter(
     override fun createFragment(position: Int): Fragment {
         Log.d(TAG, "createFragment :: called [$position]")
 
-        val weatherData = weatherDataList[position]
-        val cityName = cityNames[position] // 도시 이름을 리스트에서 가져옴
+        val weatherResponse = weatherDataList[position]
+        val cityName = cityNames[position]
+
+        val weatherData = WeatherDataProcessor(weatherResponse)
+        val hourlyWeatherList = weatherData.getHourlyWeatherList() // 시간대별 날씨 리스트 가져오기
+        val weeklyWeatherList = weatherData.getWeeklyWeatherList()
 
         // weatherFragment에 newInstance로 데이터 던지기
         return WeatherFragment.newInstance(
-            cityName, // 도시명 전달
-            getCurrentDate(), // 현재 날짜 전달
-            weatherData.getCurrentTemperature() ?: "온도 없음",
-            weatherData.getSkyCondition() ?: "날씨 없음",
-            weatherData.getRainfall() ?: "강수 없음",
-            weatherData.getWindSpeed() ?: "풍속 없음",
-            weatherData.getHumidity() ?: "습도 없음",
-            weatherData.getPrecipitationType() ?: "강수 없음"
+            cityName,
+            getCurrentDate(),
+            weatherData.getCurrentTemperature(),
+            weatherData.getSkyCondition(),
+            weatherData.getRainfall(),
+            weatherData.getWindSpeed(),
+            weatherData.getHumidity(),
+            weatherData.getPrecipitationType(),
+            hourlyWeatherList,
+            weeklyWeatherList
         )
     }
 
     // 어댑터 데이터 갱신 메소드
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(newDataList: List<WeatherDataProcessor>, newCityNames: List<String>) {
+    fun updateData(newDataList: List<WeatherResponse>, newCityNames: List<String>) {
         Log.d(TAG, "updateData :: called")
 
-        this.weatherDataList = newDataList.toMutableList() // 새 데이터로 업데이트
-        this.cityNames = newCityNames // 도시 이름 리스트도 업데이트
-        notifyItemRangeChanged(0, weatherDataList.size) // 변경된 데이터만 갱신
+        this.weatherDataList = newDataList.toMutableList()
+        this.cityNames = newCityNames
+        notifyItemRangeChanged(0, weatherDataList.size)
     }
 
     // 현재 날짜를 반환하는 헬퍼 메소드

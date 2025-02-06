@@ -1,4 +1,4 @@
-package com.example.weathery.fragments
+package com.example.weathery.view
 
 import android.os.Bundle
 import android.view.LayoutInflater

@@ -4,11 +4,10 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weathery.R
-import com.example.weathery.data.WeatherDataProcessor
+import com.example.weathery.utils.WeatherDataProcessor
 
 class GMapAdapter(
     private var weatherDataList: MutableList<WeatherDataProcessor> = mutableListOf(), // WeatherEntity 리스트
@@ -39,8 +38,6 @@ class GMapAdapter(
         // 날씨 데이터가 있는 경우에만 날씨 정보를 표시
         holder.tempTextView.text = "현재 기온: ${weatherData.getCurrentTemperature() ?: "온도 없음"}℃"
 
-        // 날씨 아이콘 설정 - 아이콘 리소스는 필요에 따라 설정
-        holder.weatherImageView.setImageResource(getWeatherIcon(weatherData.getSkyCondition() ?: "default"))
     }
 
     override fun getItemCount(): Int {
@@ -48,9 +45,8 @@ class GMapAdapter(
     }
 
     inner class CityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val nameTextView: TextView = itemView.findViewById(R.id.tv_city_name)
+        val nameTextView: TextView = itemView.findViewById(R.id.city_list_name)
         val tempTextView: TextView = itemView.findViewById(R.id.tv_city_temp)
-        val weatherImageView: ImageView = itemView.findViewById(R.id.iv_city_weather)
     }
 
     // 어댑터 데이터 갱신

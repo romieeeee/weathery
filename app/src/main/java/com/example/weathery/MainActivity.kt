@@ -10,8 +10,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
-import com.example.weathery.database.DatabaseProvider
-import com.example.weathery.repository.WeatherRepository
+import com.example.weathery.data.local.DatabaseProvider
 import com.example.weathery.utils.LocationManager
 import com.example.weathery.utils.WeatherManager
 import com.google.android.material.navigation.NavigationView
