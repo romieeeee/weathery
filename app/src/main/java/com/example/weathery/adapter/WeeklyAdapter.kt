@@ -1,5 +1,6 @@
 package com.example.weathery.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +17,7 @@ import java.util.TimeZone
  * 시간별 날씨 데이터를 RecyclerView에 표시
  */
 class WeeklyAdapter(
-    private val weeklyWeatherList: List<WeeklyWeather>
+    private var weeklyWeatherList: List<WeeklyWeather>
 ) : RecyclerView.Adapter<WeeklyAdapter.WeeklyViewHolder>() {
 
     class WeeklyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -36,11 +37,17 @@ class WeeklyAdapter(
     override fun onBindViewHolder(holder: WeeklyViewHolder, position: Int) {
         val weather = weeklyWeatherList[position]
         holder.dateTextView.text = getFormattedDate(weather.date)
-        holder.weatherTextView.text = weather.weather
+        holder.weatherTextView.text = weather.skyCondition
         holder.weatherIcon.setImageResource(weather.iconRes)
     }
 
     override fun getItemCount(): Int = weeklyWeatherList.size
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateData(newList: List<WeeklyWeather>) {
+        weeklyWeatherList = newList
+        notifyDataSetChanged()
+    }
 
     fun getFormattedDate(time: String): String {
         val inputFormat = SimpleDateFormat("yyyyMMdd", Locale.KOREAN)

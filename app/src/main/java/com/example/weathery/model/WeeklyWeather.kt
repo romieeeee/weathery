@@ -2,12 +2,12 @@ package com.example.weathery.model
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.example.weathery.R
+import com.example.weathery.utils.WeatherIconMapper.getWeatherIcon
 
 data class WeeklyWeather(
     val date: String, // 예: "20250204"
-    val weather: String,
-    val iconRes: Int = R.drawable.ic_unknown // 예: R.drawable.ic_sunny
+    val skyCondition: String,
+    val iconRes: Int = getWeatherIcon(skyCondition)
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString().toString(),

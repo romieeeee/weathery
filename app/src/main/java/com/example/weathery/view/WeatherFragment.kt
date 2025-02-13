@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weathery.R
@@ -17,6 +18,10 @@ import com.example.weathery.adapter.HourlyAdapter
 import com.example.weathery.adapter.WeeklyAdapter
 import com.example.weathery.model.HourlyWeather
 import com.example.weathery.model.WeeklyWeather
+import com.example.weathery.utils.WeatherIconMapper.getWeatherIcon
+import com.example.weathery.viewmodel.WeatherViewModel
+
+private val TAG = "WeatherFragment"
 
 /**
  * 각 도시의 날씨 정보를 받아서 UI에 표시
@@ -31,9 +36,6 @@ class WeatherFragment : Fragment() {
     private lateinit var tvHumidity: TextView
     private lateinit var ivWeather: ImageView
 
-    private lateinit var hourlyWeatherList: List<HourlyWeather>
-    private lateinit var weeklyWeatherList: List<WeeklyWeather>
-
     // hourly recyclerview
     private lateinit var hourlyRecyclerView: RecyclerView
     private lateinit var hourlyAdapter: HourlyAdapter
@@ -42,6 +44,13 @@ class WeatherFragment : Fragment() {
     private lateinit var weeklyRecyclerView: RecyclerView
     private lateinit var weeklyAdapter: WeeklyAdapter
 
+    private lateinit var weatherViewModel: WeatherViewModel
+
+    private var hourlyWeatherList: List<HourlyWeather> = emptyList()
+    private var weeklyWeatherList: List<WeeklyWeather> = emptyList()
+
+    private val name: String = "현재 위치"
+    private val date: String = "2025-mm-dd"
 
     companion object {
         // newInstance를 사용해 데이터를 전달받음
@@ -53,7 +62,6 @@ class WeatherFragment : Fragment() {
             rainfall: String?,
             windSpeed: String?,
             humidity: String?,
-            precipitation_type: String?,
             hourlyWeatherList: List<HourlyWeather>,
             weeklyWeatherList: List<WeeklyWeather>,
         ): WeatherFragment {
@@ -66,11 +74,12 @@ class WeatherFragment : Fragment() {
                 putString("RAINFALL", rainfall)
                 putString("WIND_SPEED", windSpeed)
                 putString("HUMIDITY", humidity)
-                putString("PRECIPITATION_TYPE", precipitation_type)
-                putParcelableArrayList("HOURLY_WEATHER_LIST", ArrayList(hourlyWeatherList)) // 시간대별 날씨 추가
-                putParcelableArrayList("WEEKLY_WEATHER_LIST", ArrayList(weeklyWeatherList)) // 시간대별 날씨 추가
+                putParcelableArrayList("HOURLY_WEATHER_LIST", ArrayList(hourlyWeatherList))
+                putParcelableArrayList("WEEKLY_WEATHER_LIST", ArrayList(weeklyWeatherList))
             }
+            Log.d(TAG, "newInstance 호출 :: ${fragment.arguments}")
             fragment.arguments = args
+
             return fragment
         }
     }
@@ -86,16 +95,37 @@ class WeatherFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        weatherViewModel = ViewModelProvider(requireActivity()).get(WeatherViewModel::class.java)
+
+        // ViewModel의 데이터 변화 관찰
+        weatherViewModel.weatherData.observe(viewLifecycleOwner) { weatherData ->
+            // 현재 프래그먼트의 위치가 맞을 때만 업데이트
+            if (weatherData != null && arguments?.getString("CITY_NAME") == "현재 위치") {
+                updateWeatherData(
+                    "현재 위치",
+                    "20250213",
+                    weatherData.temperature,
+                    weatherData.skyCondition,
+                    weatherData.rainfall,
+                    weatherData.windSpeed,
+                    weatherData.humidity,
+                    weatherData.hourlyForecasts,
+                    weatherData.weeklyForecasts
+                )
+            }
+        }
+
         // UI 초기화
         initUI(view)
 
         // 시간대별 날씨 리스트 받기
-        hourlyWeatherList = arguments?.getParcelableArrayList("HOURLY_WEATHER_LIST") ?: listOf()
-        weeklyWeatherList = arguments?.getParcelableArrayList("WEEKLY_WEATHER_LIST") ?: listOf()
+        hourlyWeatherList = arguments?.getParcelableArrayList("HOURLY_WEATHER_LIST") ?: emptyList()
+        weeklyWeatherList = arguments?.getParcelableArrayList("WEEKLY_WEATHER_LIST") ?: emptyList()
 
         // recyclerview setup
         hourlyRecyclerView = view.findViewById(R.id.hourly_recycler_view)
-        hourlyRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        hourlyRecyclerView.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
         hourlyAdapter = HourlyAdapter(hourlyWeatherList)
         hourlyRecyclerView.adapter = hourlyAdapter
@@ -109,9 +139,6 @@ class WeatherFragment : Fragment() {
 
         val customDecoration = CustomDecoration(4f, 8f, Color.GRAY)
         weeklyRecyclerView.addItemDecoration(customDecoration)
-
-        Log.d("WeatherFragment", hourlyWeatherList.toString())
-        Log.d("WeatherFragment", weeklyWeatherList.toString())
 
         // 날씨 데이터 설정
         setWeatherData()
@@ -130,8 +157,10 @@ class WeatherFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun setWeatherData() {
+        Log.d(TAG, "setWeatherData 호출 :: arguments = $arguments")
+
         arguments?.let {
-            tvLocation.text = it.getString("CITY_NAME")?.replace(" ", "\n") ?: "알 수 없는 위치"
+            tvLocation.text = it.getString("CITY_NAME")?: "알 수 없는 위치"
             tvTodayDate.text = it.getString("DATE") ?: "날짜 없음"
             tvNowTemp.text = it.getString("TEMPERATURE") ?: "정보 없음"
             tvNowWeather.text = it.getString("SKY_CONDITION") ?: "정보 없음"
@@ -139,28 +168,44 @@ class WeatherFragment : Fragment() {
             tvWind.text = "${it.getString("WIND_SPEED") ?: "정보 없음"}m/s"
             tvHumidity.text = "${it.getString("HUMIDITY") ?: "정보 없음"}%"
 
-            // 날씨 아이콘 설정
-            val skyCondition = it.getString("SKY_CONDITION")
-            val precipitationType = it.getString("PRECIPITATION_TYPE")
+            ivWeather.setImageResource(getWeatherIcon(it.getString("SKY_CONDITION").toString()))
 
-            ivWeather.setImageResource(getWeatherIcon(precipitationType, skyCondition))
+            // hourly, weekly 데이터 업데이트
+            val newHourlyList =
+                it.getParcelableArrayList<HourlyWeather>("HOURLY_WEATHER_LIST") ?: emptyList()
+            val newWeeklyList =
+                it.getParcelableArrayList<WeeklyWeather>("WEEKLY_WEATHER_LIST") ?: emptyList()
+
+            // 어댑터 데이터 업데이트
+            hourlyAdapter.updateData(newHourlyList)
+            weeklyAdapter.updateData(newWeeklyList)
         }
     }
 
-    private fun getWeatherIcon(precipitationType: String?, skyCondition: String?): Int {
-        if (precipitationType == "없음") { // 강수가 없을 경우
-            return when (skyCondition) {
-                "맑음" -> R.drawable.ic_sunny
-                "구름 많음", "흐림" -> R.drawable.ic_cloudy
-                else -> R.drawable.ic_unknown
-            }
-        } else { // 강수가 있을 경우
-            return when (precipitationType) {
-                "비" -> R.drawable.ic_rainy
-                "비/눈" -> R.drawable.ic_rainysnow
-                "눈" -> R.drawable.ic_snow
-                else -> R.drawable.ic_unknown
-            }
+    private fun updateWeatherData(
+        cityName: String?,
+        date: String?,
+        temperature: String?,
+        skyCondition: String?,
+        rainfall: String?,
+        windSpeed: String?,
+        humidity: String?,
+        hourlyWeatherList: List<HourlyWeather>,
+        weeklyWeatherList: List<WeeklyWeather>
+    ) {
+        Log.d(TAG, "updateWeatherData 호출 :: arguments = $arguments")
+
+        arguments?.apply {
+            putString("CITY_NAME", cityName)
+            putString("DATE", date)
+            putString("TEMPERATURE", temperature)
+            putString("SKY_CONDITION", skyCondition)
+            putString("RAINFALL", rainfall)
+            putString("WIND_SPEED", windSpeed)
+            putString("HUMIDITY", humidity)
+            putParcelableArrayList("HOURLY_WEATHER_LIST", ArrayList(hourlyWeatherList))
+            putParcelableArrayList("WEEKLY_WEATHER_LIST", ArrayList(weeklyWeatherList))
         }
+        setWeatherData()  // UI 갱신
     }
 }

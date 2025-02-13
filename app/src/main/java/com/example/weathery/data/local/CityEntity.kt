@@ -1,6 +1,5 @@
 package com.example.weathery.data.local
 
-import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey

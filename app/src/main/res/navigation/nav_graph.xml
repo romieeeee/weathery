@@ -28,6 +28,10 @@
         android:id="@+id/GMapFragment"
         android:name="com.example.weathery.view.GMapFragment"
         android:label="fragment_gmap"
-        tools:layout="@layout/fragment_gmap" />
+        tools:layout="@layout/fragment_gmap" >
+        <action
+            android:id="@+id/action_GMapFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
 
 </navigation>
