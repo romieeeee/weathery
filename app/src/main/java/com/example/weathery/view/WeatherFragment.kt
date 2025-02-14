@@ -49,9 +49,6 @@ class WeatherFragment : Fragment() {
     private var hourlyWeatherList: List<HourlyWeather> = emptyList()
     private var weeklyWeatherList: List<WeeklyWeather> = emptyList()
 
-    private val name: String = "현재 위치"
-    private val date: String = "2025-mm-dd"
-
     companion object {
         // newInstance를 사용해 데이터를 전달받음
         fun newInstance(
@@ -100,10 +97,9 @@ class WeatherFragment : Fragment() {
         // ViewModel의 데이터 변화 관찰
         weatherViewModel.weatherData.observe(viewLifecycleOwner) { weatherData ->
             // 현재 프래그먼트의 위치가 맞을 때만 업데이트
-            if (weatherData != null && arguments?.getString("CITY_NAME") == "현재 위치") {
+            if (weatherData != null && arguments?.getString("CITY_NAME") == "--") {
                 updateWeatherData(
-                    "현재 위치",
-                    "20250213",
+                    weatherData.cityName,
                     weatherData.temperature,
                     weatherData.skyCondition,
                     weatherData.rainfall,
@@ -160,7 +156,10 @@ class WeatherFragment : Fragment() {
         Log.d(TAG, "setWeatherData 호출 :: arguments = $arguments")
 
         arguments?.let {
-            tvLocation.text = it.getString("CITY_NAME")?: "알 수 없는 위치"
+            val cityName = it.getString("CITY_NAME") ?: "알 수 없는 위치"
+            Log.d(TAG, "WeatherFragment received city: $cityName")
+
+            tvLocation.text = cityName.replace(" ", "\n")
             tvTodayDate.text = it.getString("DATE") ?: "날짜 없음"
             tvNowTemp.text = it.getString("TEMPERATURE") ?: "정보 없음"
             tvNowWeather.text = it.getString("SKY_CONDITION") ?: "정보 없음"
@@ -184,7 +183,6 @@ class WeatherFragment : Fragment() {
 
     private fun updateWeatherData(
         cityName: String?,
-        date: String?,
         temperature: String?,
         skyCondition: String?,
         rainfall: String?,
@@ -197,7 +195,6 @@ class WeatherFragment : Fragment() {
 
         arguments?.apply {
             putString("CITY_NAME", cityName)
-            putString("DATE", date)
             putString("TEMPERATURE", temperature)
             putString("SKY_CONDITION", skyCondition)
             putString("RAINFALL", rainfall)

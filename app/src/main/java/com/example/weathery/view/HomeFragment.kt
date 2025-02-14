@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -29,7 +30,7 @@ import com.tbuonomo.viewpagerdotsindicator.DotsIndicator
 private const val TAG = "HomeFragment"
 
 /**
- * 메인 화면의 UI를 담당하는 클래스
+ * 메인 화면의 UI를 담당하는 Fragment
  * - ViewPager2르 사용해 현재 위치 날씨와 저장된 도시의 날씨를 표시
  */
 class HomeFragment : Fragment() {
@@ -86,7 +87,7 @@ class HomeFragment : Fragment() {
             null
         )
 
-        updateHomeAdapter()
+//        updateHomeAdapter()
 
         viewPager.adapter = homeAdapter
 
@@ -109,6 +110,13 @@ class HomeFragment : Fragment() {
                 requireActivity().findViewById<NavigationView>(R.id.navigation_view)
             navigationView?.let { nav ->
                 val headerView = nav.getHeaderView(0)
+
+                val locationTextView = headerView.findViewById<TextView>(R.id.my_location)
+
+                homeViewModel.currentCityName.observe(viewLifecycleOwner) { cityName ->
+                    locationTextView.text = cityName
+                }
+
                 favCityRecyclerView = headerView.findViewById(R.id.fav_city_recycler_view)
                 favCityRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
@@ -152,6 +160,7 @@ class HomeFragment : Fragment() {
 
         homeViewModel.currentWeather.observe(viewLifecycleOwner) { currentWeather ->
             currentWeather?.let {
+                Log.d(TAG, "currentWeather updated: $currentWeather")
                 weatherViewModel.updateWeatherData(it)
                 updateHomeAdapter()
             }
@@ -179,8 +188,10 @@ class HomeFragment : Fragment() {
                     Log.d(TAG, "${it.latitude}, ${it.longitude}")
                     val cityName = locationManager.getCityNameFromCoord(it.latitude, it.longitude)
 
+                    Log.d(TAG, "Fetched weather data for: $cityName")
+
                     // ViewModel을 통해 API에서 날씨 정보 요청
-                    homeViewModel.fetchCurrentLocationWeather(it.latitude, it.longitude)
+                    homeViewModel.fetchCurrentLocationWeather(it.latitude, it.longitude, cityName)
                 }
             },
             onFailure = {

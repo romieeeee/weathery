@@ -1,6 +1,7 @@
 package com.example.weathery.model
 
 data class WeatherUiModel(
+    val cityName: String? = "현재 위치는?",
     val temperature: String,
     val skyCondition: String,
     val humidity: String,

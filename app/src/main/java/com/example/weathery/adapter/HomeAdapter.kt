@@ -31,12 +31,13 @@ class HomeAdapter(
     }
 
     override fun createFragment(position: Int): Fragment {
+        Log.d("WeatherFragment", "currentWeatherData = ${ currentWeatherData }")
         val fragment = if (position == 0) {
             WeatherFragment.newInstance(
-                "현재 위치",
+                currentWeatherData?.cityName ?: "--",
                 getCurrentDate(),
                 currentWeatherData?.temperature ?: "--",
-                currentWeatherData?.skyCondition ?: "정보 없음",
+                currentWeatherData?.skyCondition ?: "--",
                 currentWeatherData?.rainfall ?: "--",
                 currentWeatherData?.windSpeed ?: "--",
                 currentWeatherData?.humidity ?: "--",
@@ -76,6 +77,7 @@ class HomeAdapter(
         newCityNames: List<String>,
         newWeather: WeatherUiModel?
     ) {
+        Log.d("WeatherFragment", "updateData :: ${currentWeatherData}")
         weatherDataList = newWeatherDataList
         cityNames = newCityNames
         currentWeatherData = newWeather
