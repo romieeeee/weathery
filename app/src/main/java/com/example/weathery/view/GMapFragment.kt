@@ -9,16 +9,17 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.navigation.fragment.findNavController
 import com.example.weathery.R
-import com.example.weathery.adapter.GMapAdapter
-import com.example.weathery.utils.WeatherDataProcessor
+import com.example.weathery.data.local.CityEntity
 import com.example.weathery.data.local.DatabaseProvider
+import com.example.weathery.data.repository.WeatherRepository
 import com.example.weathery.utils.ApiKey
 import com.example.weathery.utils.LocationManager
-import com.example.weathery.utils.WeatherManager
+import com.example.weathery.viewmodel.HomeViewModel
+import com.example.weathery.viewmodel.HomeViewModelFactory
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -37,12 +38,7 @@ private const val TAG = "GMapFragment"
 
 class GMapFragment : Fragment(), OnMapReadyCallback {
 
-    // recyclerView
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: GMapAdapter
-
     private lateinit var locationManager: LocationManager
-    private lateinit var weatherManager: WeatherManager
 
     // google map
     private lateinit var mapView: MapView
@@ -52,12 +48,11 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
     private var selectedLatLng: LatLng? = null
     private var selectedCityName: String? = null
 
-    // database
-    private val db by lazy { DatabaseProvider.getDatabase(requireContext()) }
-    private val cityDao by lazy { db.cityDao() } // CityDao 초기화
-
-    // 가시성 제어를 위한 변수 추가
-    private var isMapVisible = false
+    private val homeViewModel: HomeViewModel by activityViewModels {
+        HomeViewModelFactory(
+            WeatherRepository(DatabaseProvider.getDatabase(requireContext()).cityDao())
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -70,22 +65,12 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
         super.onViewCreated(view, savedInstanceState)
 
         // init
-        recyclerView = view.findViewById(R.id.city_recycler_view)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-
-        adapter = GMapAdapter(mutableListOf(), listOf())
-        recyclerView.adapter = adapter
-
         locationManager = LocationManager(requireContext())
-        weatherManager = WeatherManager(cityDao)
 
         // init mapView
         mapView = view.findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
-
-        // DB에서 도시와 날씨 정보를 가져와 RecyclerView 업데이트
-        loadWeatherData()
 
         // 장소 자동완성 기능도 추가
         setupAutoComplete()
@@ -108,45 +93,22 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
     @SuppressLint("NotifyDataSetChanged")
     private fun saveSelectedCity() {
         Log.d(TAG, "saveSelectedCity :: called")
-        selectedLatLng?.let { latLng ->
+        selectedLatLng?.let {
             selectedCityName?.let { cityName ->
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     // 도시 정보 저장 및 cityId 반환
-                    weatherManager.saveCity(cityName, latLng.latitude, latLng.longitude)
+                    homeViewModel.addCity(
+                        CityEntity(
+                            cityName = cityName,
+                            latitude = it.latitude,
+                            longitude = it.longitude
+                        )
+                    )
 
-                    // 날씨 데이터 가져오기 및 저장
-                    weatherManager.fetchWeatherData(latLng.latitude, latLng.longitude)
-
-                    // 모든 도시 및 최신 날씨 데이터 로드하여 어댑터 업데이트
-                    loadWeatherData()
-                }
-            }
-        }
-    }
-
-    // DB에서 데이터를 로드하여 어댑터를 업데이트하는 함수
-    private fun loadWeatherData() {
-        Log.d(TAG, "loadWeatherData :: called")
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            val cities = cityDao.getAllCities()
-            val weatherDataList = mutableListOf<WeatherDataProcessor>()
-            val cityNames = mutableListOf<String>()
-            cityDao.getAllCities().collect { cities ->
-                for (city in cities) {                // API를 통해 날씨 데이터 가져오기
-                    // API를 통해 날씨 데이터 가져오기
-                    val weatherData = weatherManager.fetchWeatherData(city.latitude, city.longitude)
-                    if (weatherData != null) {
-                        val processedData = WeatherDataProcessor(weatherData) // 예시로 처리
-                        weatherDataList.add(processedData)
-                        cityNames.add(city.cityName)
+                    withContext(Dispatchers.Main) {
+                        findNavController().navigate(R.id.action_GMapFragment_to_homeFragment)
                     }
                 }
-            }
-            Log.d(TAG, "loadWeatherData :: cityNames = $cityNames")
-
-            // UI 업데이트
-            withContext(Dispatchers.Main) {
-                adapter.updateData(weatherDataList, cityNames)
             }
         }
     }
@@ -179,25 +141,12 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
                         )
                     )
                 }
-                toggleViews()
             }
 
             override fun onError(status: com.google.android.gms.common.api.Status) {
                 Log.e("GMapFragment", "Error selecting place: ${status.statusMessage}")
             }
         })
-    }
-
-    // recyclerview, mapview 가시성 전환 메소드
-    private fun toggleViews() {
-        isMapVisible = !isMapVisible
-        if (isMapVisible) {
-            recyclerView.visibility = View.GONE
-            mapView.visibility = View.VISIBLE
-        } else {
-            recyclerView.visibility = View.VISIBLE
-            mapView.visibility = View.GONE
-        }
     }
 
     // 다이얼로그를 띄워서 도시 추가 여부 확인
@@ -209,7 +158,6 @@ class GMapFragment : Fragment(), OnMapReadyCallback {
                 .setMessage("${cityName}을(를) 추가하시겠습니까?")
                 .setPositiveButton("네") { dialog, _ ->
                     saveSelectedCity()
-                    toggleViews()
                     dialog.dismiss()
                 }
                 .setNegativeButton("아니요") { dialog, _ ->

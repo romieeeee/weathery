@@ -9,21 +9,16 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.weathery.data.local.DatabaseProvider
 import com.example.weathery.utils.LocationManager
-import com.example.weathery.utils.WeatherManager
 import com.google.android.material.navigation.NavigationView
 
 private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 
-    // database
-    private val db by lazy { DatabaseProvider.getDatabase(this) }
-    private val cityDao by lazy { db.cityDao() } // CityDao 초기화
-
-    private lateinit var weatherManager: WeatherManager
     private lateinit var locationManager: LocationManager
 
     private lateinit var toolbar: Toolbar
@@ -46,7 +41,9 @@ class MainActivity : AppCompatActivity() {
 
         drawerLayout = findViewById(R.id.drawer_layout)
 
-        navController = findNavController(R.id.nav_host_fragment)
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
         navView = findViewById(R.id.navigation_view)
 
         // Toolbar 설정
@@ -66,7 +63,6 @@ class MainActivity : AppCompatActivity() {
 
         // Manager 초기화
         locationManager = LocationManager(this)
-        weatherManager = WeatherManager(cityDao)
 
         checkPermission()
     }

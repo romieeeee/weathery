@@ -5,8 +5,9 @@ import com.example.weathery.data.local.CityDao
 import com.example.weathery.data.local.CityEntity
 import com.example.weathery.data.remote.RetrofitClient
 import com.example.weathery.data.remote.WeatherApi
-import com.example.weathery.model.WeatherResponse
+import com.example.weathery.model.WeatherUiModel
 import com.example.weathery.utils.ApiKey
+import com.example.weathery.utils.WeatherDataProcessor
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -35,7 +36,7 @@ class WeatherRepository(private val cityDao: CityDao) {
      * 좌표(latitude, longitude)로 날씨 api 호출하기
      * - 비동기 작업이므로 suspend 함수로 선언
      */
-    suspend fun fetchWeatherData(lat: Double, lon: Double): WeatherResponse? {
+    suspend fun fetchWeatherData(lat: Double, lon: Double): WeatherUiModel? {
         return try {
             val apiKey = ApiKey.W_API_KEY
             val baseDate = getFormattedDate()
@@ -54,7 +55,7 @@ class WeatherRepository(private val cityDao: CityDao) {
                 )
 
             if (response.response.header.resultCode == "00") {
-                response // 성공 시 WeatherResponse 반환
+                WeatherDataProcessor(response).toUiModel()
             } else {
                 null
             }

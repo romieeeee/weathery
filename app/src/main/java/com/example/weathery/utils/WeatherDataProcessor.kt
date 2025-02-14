@@ -1,10 +1,15 @@
 package com.example.weathery.utils
 
-import com.example.weathery.R
 import com.example.weathery.model.HourlyWeather
 import com.example.weathery.model.WeatherResponse
+import com.example.weathery.model.WeatherUiModel
 import com.example.weathery.model.WeeklyWeather
 
+/**
+ * API 응답이 응답 코드 형태로 와서
+ * UI에 데이터 던지기 전에 가공하는 클래스
+ * 응답 코드 -> 문자열
+ */
 class WeatherDataProcessor(private val weatherResponse: WeatherResponse) {
 
     // SKY 코드 매핑
@@ -23,13 +28,6 @@ class WeatherDataProcessor(private val weatherResponse: WeatherResponse) {
         "4" to "소나기"
     )
 
-    // 아이콘 매핑
-    private val iconResourceMap = mapOf(
-        "1" to R.drawable.ic_sunny,
-        "3" to R.drawable.ic_cloudy,
-        "4" to R.drawable.ic_cloudy
-    )
-
     /**
      * 시간별 예보 데이터를 그룹화하여 반환
      */
@@ -46,16 +44,17 @@ class WeatherDataProcessor(private val weatherResponse: WeatherResponse) {
         }
 
         hourlyDataMap.forEach { (time, categoryMap) ->
-            val skyCode = categoryMap["SKY"]
-            val weather = skyConditionMap[skyCode] ?: "정보 없음"
-            val iconRes = iconResourceMap[skyCode] ?: R.drawable.ic_unknown
+            val skyCondition = getSkyCondition(categoryMap)
 
-            weatherList.add(HourlyWeather(time, weather, iconRes))
+            weatherList.add(HourlyWeather(time, skyCondition))
         }
 
         return weatherList.sortedBy { it.time }
     }
 
+    /**
+     * 주간별 예보 데이터를 그룹화하여 반환
+     */
     fun getWeeklyWeatherList(): List<WeeklyWeather> {
         val weeklyDataMap = mutableMapOf<String, MutableMap<String, String>>()
         val weatherList = mutableListOf<WeeklyWeather>()
@@ -69,11 +68,9 @@ class WeatherDataProcessor(private val weatherResponse: WeatherResponse) {
         }
 
         weeklyDataMap.forEach { (date, categoryMap) ->
-            val skyCode = categoryMap["SKY"]
-            val weather = skyConditionMap[skyCode] ?: "정보 없음"
-            val iconRes = iconResourceMap[skyCode] ?: R.drawable.ic_unknown
+            val skyCondition = getSkyCondition(categoryMap)
 
-            weatherList.add(WeeklyWeather(date, weather, iconRes))
+            weatherList.add(WeeklyWeather(date, skyCondition))
         }
 
         return weatherList.sortedBy { it.date }
@@ -88,17 +85,34 @@ class WeatherDataProcessor(private val weatherResponse: WeatherResponse) {
             ?.fcstValue ?: "데이터 없음"
     }
 
+    fun getSkyCondition(): String {
+        val latestData = weatherResponse.response.body?.items?.item
+            ?.groupBy { it.fcstTime } // 시간별로 그룹화
+            ?.minByOrNull { it.key }?.value // 가장 가까운 시간 데이터 가져오기
+
+        val categoryMap = latestData?.associate { it.category to it.fcstValue } ?: emptyMap()
+
+        return getSkyCondition(categoryMap)
+    }
+
+    /**
+     * SKY와 PTY 값을 고려해서 날씨 상태 반환
+     */
+    private fun getSkyCondition(categoryMap: Map<String, String>): String {
+        val skyCode = categoryMap["SKY"]
+        val ptyCode = categoryMap["PTY"]
+
+        return if (ptyCode == "0" || ptyCode.isNullOrEmpty()) {
+            skyConditionMap[skyCode] ?: "알 수 없음"
+        } else {
+            precipitationTypeMap[ptyCode] ?: "알 수 없음"
+        }
+    }
+
     /**
      * 현재 온도(TMP)를 반환
      */
     fun getCurrentTemperature(): String = getWeatherDataByCategory("TMP")
-
-    /**
-     * 강수 형태(PTY)를 반환
-     */
-    fun getPrecipitationType(): String {
-        return precipitationTypeMap[getWeatherDataByCategory("PTY")] ?: "알 수 없음"
-    }
 
     /**
      * 습도(REH)를 반환
@@ -111,34 +125,22 @@ class WeatherDataProcessor(private val weatherResponse: WeatherResponse) {
     fun getRainfall(): String = getWeatherDataByCategory("POP")
 
     /**
-     * 하늘 상태(SKY)를 반환
-     */
-    fun getSkyCondition(): String {
-        return skyConditionMap[getWeatherDataByCategory("SKY")] ?: "알 수 없음"
-    }
-
-    /**
-     * 동서바람성분(UUU)을 반환
-     */
-    fun getEastWestWindComponent(): String = getWeatherDataByCategory("UUU")
-
-    /**
-     * 남북바람성분(VVV)을 반환
-     */
-    fun getNorthSouthWindComponent(): String = getWeatherDataByCategory("VVV")
-
-    /**
      * 풍속(WSD)을 반환
      */
     fun getWindSpeed(): String = getWeatherDataByCategory("WSD")
 
     /**
-     * 풍향(VEC)을 반환
+     * UI 모델로 변환하는 함수 추가
      */
-    fun getWindDirection(): String = getWeatherDataByCategory("VEC")
-
-    /**
-     * 낙뢰(LGT)를 반환
-     */
-    fun getLightning(): String = getWeatherDataByCategory("LGT")
+    fun toUiModel(): WeatherUiModel {
+        return WeatherUiModel(
+            temperature = getCurrentTemperature(),
+            skyCondition = getSkyCondition(),
+            humidity = getHumidity(),
+            rainfall = getRainfall(),
+            windSpeed = getWindSpeed(),
+            hourlyForecasts = getHourlyWeatherList(),
+            weeklyForecasts = getWeeklyWeatherList()
+        )
+    }
 }
